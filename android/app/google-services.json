@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "955770973754",
+    "project_id": "toyr-c7bd9",
+    "storage_bucket": "toyr-c7bd9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955770973754:android:506130803a0ff3d2a68f03",
+        "android_client_info": {
+          "package_name": "com.example.toyr2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955770973754-3eqll6c4nvqo5jkbuc51ok2rb5a39kgg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnwUO68OPX1n_t-wojA4xxDpjxUnbpXXM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "955770973754-3eqll6c4nvqo5jkbuc51ok2rb5a39kgg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
