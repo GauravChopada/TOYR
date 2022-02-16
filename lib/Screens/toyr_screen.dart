@@ -21,23 +21,51 @@ class toyrScreen extends StatelessWidget {
       image(
           imageId: "p1",
           imgUrl:
-              "https://lh5.googleusercontent.com/p/AF1QipMz9P5BrDQATamw27O9h08B9yt0l71m3v4IWzwj=w1080-k-no"),
+              "https://www.finsmes.com/wp-content/uploads/2018/02/traveler.jpg"),
       image(
           imageId: "p2",
           imgUrl:
-              "http://touristinformationcenter.net/wp-content/uploads/2021/09/gopi-4.jpg"),
+              "http://www.cheatsheet.com/wp-content/uploads/2015/10/Man-sitting-on-suitcase-and-sending-text-message-619x500.jpg"),
       image(
           imageId: "p3",
           imgUrl:
-              "https://i.pinimg.com/736x/fe/8c/4b/fe8c4b4f17d110af461affb6f880f00a.jpg"),
-      image(
-          imageId: "p4",
-          imgUrl:
-              "https://pcbodiwala.com/storage/work_experience/5fc5dc150256a1606802453.jpeg"),
-      image(
-          imageId: "p5",
-          imgUrl:
-              "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0d/eb/f6/9b/wave-pool.jpg?w=1200&h=1200&s=1")
+              "https://media.istockphoto.com/photos/woman-walking-on-a-path-by-the-sea-holding-a-friends-hand-picture-id1288078486?b=1&k=20&m=1288078486&s=170667a&w=0&h=_Hh6hjBsu4hxPhphKow6kk8YHaqtqYFCRRsadwnvRRY="),
+      // image(
+      //     imageId: "p4",
+      //     imgUrl:
+      //         "https://images2.minutemediacdn.com/image/upload/c_fill,g_auto,h_1248,w_2220/f_auto,q_auto,w_1100/v1555291097/shape/mentalfloss/istock-174105711.jpg"),
+      // image(
+      //     imageId: "p5",
+      //     imgUrl:
+      //         "https://previews.123rf.com/images/golubovystock/golubovystock1711/golubovystock171100365/90186516-travelling-man-waiting-for-his-woman-to-return-from-the-restroom-coffee-break-time-family-vacation-t.jpg"),
+      // image(
+      //     imageId: "p5",
+      //     imgUrl:
+      //         "https://www.verywellmind.com/thmb/kvyv9ZP5I9-6MCVdyE0CjFmZSh8=/3435x2576/smart/filters:no_upscale()/young-man-traveling-in-train---lost-in-thought-618725304-5ba4d94c46e0fb0025833547.jpg"),
+      // image(
+      //     imageId: "p5",
+      //     imgUrl:
+      //         "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0d/eb/f6/9b/wave-pool.jpg?w=1200&h=1200&s=1"),
+      // image(
+      //     imageId: "p5",
+      //     imgUrl:
+      //         "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0d/eb/f6/9b/wave-pool.jpg?w=1200&h=1200&s=1"),
+      // image(
+      //     imageId: "p5",
+      //     imgUrl:
+      //         "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0d/eb/f6/9b/wave-pool.jpg?w=1200&h=1200&s=1"),
+      // image(
+      //     imageId: "p5",
+      //     imgUrl:
+      //         "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0d/eb/f6/9b/wave-pool.jpg?w=1200&h=1200&s=1"),
+      // image(
+      //     imageId: "p5",
+      //     imgUrl:
+      //         "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0d/eb/f6/9b/wave-pool.jpg?w=1200&h=1200&s=1"),
+      // image(
+      //     imageId: "p5",
+      //     imgUrl:
+      //         "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0d/eb/f6/9b/wave-pool.jpg?w=1200&h=1200&s=1"),
     ];
     final List<place> places = [
       place(
@@ -514,17 +542,74 @@ class toyrScreen extends StatelessWidget {
             SizedBox(
               height: 15,
             ),
-            // Container(
-            //   padding: EdgeInsets.only(left: 15, bottom: 10),
-            //   child: Text(
-            //     "Memories",
-            //     style: GoogleFonts.poppins(
-            //         fontSize: 20, fontWeight: FontWeight.w500),
-            //   ),
-            // ),
+            Container(
+              padding: EdgeInsets.only(left: 15, bottom: 10),
+              child: Text(
+                "Memories",
+                style: GoogleFonts.poppins(
+                    fontSize: 20, fontWeight: FontWeight.w500),
+              ),
+            ),
+            Container(
+              // margin: EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(15),
+                      topRight: Radius.circular(15))),
+              padding: EdgeInsets.only(top: 20, left: 10, right: 10),
+              width: MediaQuery.of(context).size.width,
+              // height: 630,
+              height: images.length <= 2 ? 220 : 420,
+              child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 1,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10),
+                  itemCount: images.length < 4 ? images.length : 4,
+                  itemBuilder: (ctx, index) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width / 3,
+                      // decoration: BoxDecoration(
+                      // borderRadius: BorderRadius.circular(15),
+                      // border: Border.all(width: 2)),
+                      // boxShadow: [
+                      //   new BoxShadow(
+                      //     color: Colors.black,
+                      //     blurRadius: 20.0,
+                      //   ),
+                      // ]),
+                      // height: 200,
+
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
+                        child: Container(
+                          child: Image.network(
+                            images[index].imgUrl,
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+            ),
+            Container(
+              color: Colors.grey[300],
+              child: TextButton(
+                  child: Text(
+                    "View all",
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black),
+                  ),
+                  onPressed: () {}),
+            ),
             // Container(child: StaggeredGrid.count(crossAxisCount: crossAxisCount),),
-            SizedBox(
+            Container(
               height: 50,
+              color: Colors.grey[300],
             )
           ],
         ),
