@@ -15,7 +15,6 @@ class Auth with ChangeNotifier {
   // late Timer? _authTimer;
   bool get isAuth {
     // notifyListeners();
-
     print(token != null);
     return token != null;
   }
