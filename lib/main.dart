@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -6,7 +7,9 @@ import 'package:toyr2/Screens/Auth_Screen.dart';
 import 'package:toyr2/Screens/Log_In_Screen.dart';
 import 'Screens/home_page.dart';
 import 'Screens/toyr_screen.dart';
-// import '';
+import 'Screens/create_Package.dart';
+import 'Screens/update_Package.dart';
+import 'Screens/memory_Screen.dart';
 import 'Providers/Auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -52,6 +55,7 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -59,42 +63,39 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider.value(value: Auth()),
         ],
         child: Consumer<Auth>(builder: (ctx, auth, _) {
-          // print("................" + Auth().token.toString());
-          Auth().tryAutoLogIn();
-          // print("................" + Auth().token.toString());
+          // print("1................" + (await Auth().token).toString());
+          // Auth().tryAutoLogIn();
+          // print("2................" + await Auth().token);
 
           return MaterialApp(
-            // home: FutureBuilder(
-            //     future: auth.tryAutoLogIn(),
-            //     builder: (ctx, snapshot) =>
-            //         snapshot.connectionState == ConnectionState.waiting
-            //             ? Center(
-            //                 child: Scaffold(
-            //                   body: Center(
-            //                     child: Text('Loading'),
-            //                   ),
-            //                 ),
-            //               )
-            //             : auth.isAuth
-            //                 ? HomeScreen()
-            //                 : AuthScreen()),
-            // home: auth.isAuth
-            //     ? HomeScreen()
-            //     : FutureBuilder(
-            //         future: auth.tryAutoLogIn(),
-            //         builder: (ctx, snapshot) =>
-            //             snapshot.connectionState == ConnectionState.waiting
-            //                 ? Center(
-            //                     child: Scaffold(
-            //                       body: Center(
-            //                         child: Text('Loading'),
-            //                       ),
-            //                     ),
-            //                   )
-            //                 : AuthScreen()),
             // home: AuthScreen(),
             // home: HomeScreen(),
-            home: currentPage,
+            // home: currentPage,
+            home: FutureBuilder(
+                future: _initialization,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Scaffold(
+                      body: Center(
+                          child: Text("Error: " + snapshot.error.toString())),
+                    );
+                  }
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    return StreamBuilder(
+                      stream: FirebaseAuth.instance.authStateChanges(),
+                      builder: (ctx, userSnapShot) {
+                        if (userSnapShot.hasData) {
+                          return HomeScreen();
+                        }
+                        return AuthScreen();
+                      },
+                    );
+                  }
+
+                  return Scaffold(
+                    body: Center(child: Text("initializing App....")),
+                  );
+                }),
             theme: ThemeData(
               textTheme: GoogleFonts.poppinsTextTheme(
                 Theme.of(context).textTheme,
@@ -104,7 +105,11 @@ class _MyAppState extends State<MyApp> {
             routes: {
               toyrScreen.Routename: (ctx) => toyrScreen(),
               LogInScreen.Routename: (ctx) => LogInScreen(),
-              AuthScreen.Routename: (ctx) => AuthScreen()
+              AuthScreen.Routename: (ctx) => AuthScreen(),
+              createPackageScreen.Routename: (ctx) => createPackageScreen(),
+              HomeScreen.Routename: (ctx) => HomeScreen(),
+              updatePackageScreen.Routename: (context) => updatePackageScreen(),
+              memoryScreen.Routename: (context) => memoryScreen(),
             },
           );
         }));
