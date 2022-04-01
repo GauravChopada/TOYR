@@ -91,15 +91,13 @@ class _viewAllTOYRSScreenState extends State<viewAllTOYRSScreen> {
                     child: Image.network(profileImgUrl, fit: BoxFit.cover),
                   ),
                   Container(
+                    padding: EdgeInsets.only(left: 15),
                     child: Text(userName,
                         style: GoogleFonts.comfortaa(
                             fontSize: 36,
                             fontWeight: FontWeight.w500,
                             color: Colors.white)),
                   ),
-                  // Container(
-                  //   child: Text(FirebaseAuth.instance.currentUser.email),
-                  // ),\
                   SizedBox(
                     height: 10,
                   ),
