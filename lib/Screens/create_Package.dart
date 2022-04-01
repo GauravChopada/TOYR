@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:toyr2/Screens/home_page.dart';
 import 'package:toyr2/Widget/place_Widget.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import '../Widget/image_Picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -29,8 +30,9 @@ class _createPackageScreenState extends State<createPackageScreen> {
   final GlobalKey<FormState> _formkey = GlobalKey();
   List listItem = ['Surat', 'Ahmedabad', 'Kutch'];
   List<String> listOfPlaces = new List<String>.empty(growable: true);
-  List<String>? finalSelectedPlaces = new List<String>.empty(growable: true);
+  List<dynamic>? finalSelectedPlaces = new List<dynamic>.empty(growable: true);
   bool _isLoading = false;
+  bool _isPublic = false;
   @override
   void _ImagePicker(File? image) {
     _pickedImage = image;
@@ -54,7 +56,7 @@ class _createPackageScreenState extends State<createPackageScreen> {
 
   void _saveForm() async {
     // FocusScope.of(context).unfocus();
-    print(FirebaseAuth.instance.currentUser.uid);
+    print(FirebaseAuth.instance.currentUser!.uid);
     if (!_formkey.currentState!.validate()) {
       return;
     }
@@ -82,17 +84,22 @@ class _createPackageScreenState extends State<createPackageScreen> {
           .child('packages/' + id + '/packageDP/')
           .child(_packageName.toString() + '.jpg');
 
-      await ref.putFile(_pickedImage).onComplete;
+      final uploadtask = ref.putFile(_pickedImage!);
+      var url = (await uploadtask).ref.getDownloadURL();
 
-      var url = await ref.getDownloadURL();
+      // var url = await ref.getDownloadURL();
+      // print('isPublic' + _isPublic.toString());
+      // print('user' + FirebaseAuth.instance.currentUser.email);
 
-      await Firestore.instance.collection('packages').document(id).setData({
+      await FirebaseFirestore.instance.collection('packages').doc(id).set({
         'packageName': _packageName,
         'imgUrl': url,
         'city': valueChoose,
+        'isPublic': _isPublic,
         'createdAt': Timestamp.now(),
-        'createdBy': 'Xenongroot@gmail.com',
-        'places': FieldValue.arrayUnion(finalSelectedPlaces),
+        'views': 0,
+        'createdBy': FirebaseAuth.instance.currentUser!.email,
+        'places': FieldValue.arrayUnion(finalSelectedPlaces!),
         'memories': FieldValue.arrayUnion(new List.empty())
       });
 
@@ -624,12 +631,12 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                                             builder: (_) {
                                                               bool firstTime =
                                                                   true;
-                                                              List<String>?
+                                                              List<dynamic>?
                                                                   selectedPlaces =
                                                                   finalSelectedPlaces ==
                                                                           null
                                                                       ? new List<
-                                                                              String>.empty(
+                                                                              dynamic>.empty(
                                                                           growable:
                                                                               true)
                                                                       : finalSelectedPlaces;
@@ -673,7 +680,7 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                                                               ),
                                                                               Container(
                                                                                 padding: EdgeInsets.symmetric(horizontal: 10),
-                                                                                height: 380,
+                                                                                height: 360,
                                                                                 child: GridView.builder(
                                                                                     physics: BouncingScrollPhysics(),
                                                                                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1, crossAxisSpacing: 10, mainAxisSpacing: 10),
@@ -705,7 +712,7 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                                                                                 child: CircularProgressIndicator(),
                                                                                               );
                                                                                             }
-                                                                                            if (snapshot.data == null && firstTime) {
+                                                                                            if (snapshot.data == null) {
                                                                                               return Center(
                                                                                                 child: Text("just a Sec...."),
                                                                                               );
@@ -856,12 +863,53 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                               ]),
                                             ),
                                             SizedBox(
-                                              height: 30,
+                                              height: 10,
                                             ),
                                           ],
                                         ),
                                       );
                                     }),
+                                    StatefulBuilder(
+                                        builder: (context, setStateFul) {
+                                      return Container(
+                                        padding: EdgeInsets.only(
+                                            left: 15, right: 15),
+                                        alignment: Alignment.centerLeft,
+                                        child: Row(
+                                            // mainAxisAlignment:
+                                            //     MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                'Set Public',
+                                                style: TextStyle(fontSize: 20),
+                                              ),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Container(
+                                                padding: EdgeInsets.all(5),
+                                                margin: EdgeInsets.all(10),
+                                                child: FlutterSwitch(
+                                                    showOnOff: true,
+                                                    activeText: 'yes',
+                                                    inactiveText: 'no',
+                                                    activeColor: Colors
+                                                        .deepPurple.shade400,
+                                                    value: _isPublic,
+                                                    onToggle: (onToggle) {
+                                                      setStateFul(() {
+                                                        _isPublic = onToggle;
+                                                      });
+                                                    }),
+                                              ),
+                                            ]),
+                                      );
+                                    }),
+                                    SizedBox(
+                                      height: 15,
+                                    ),
+                                    // Switch(
+                                    //     value: true, onChanged: (onChanged) {}),
                                     //-------------------------
                                     Container(
                                       padding:
@@ -917,7 +965,7 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                         ],
                                       ),
                                     ),
-                                    SizedBox(height: 50)
+                                    SizedBox(height: 30)
                                   ],
                                 ),
                               ),

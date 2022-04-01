@@ -3,10 +3,12 @@ import 'dart:ui';
 import 'dart:io';
 // import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 // import 'package:firebase/firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:iconsax/iconsax.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:toyr2/Screens/home_page.dart';
@@ -33,6 +35,12 @@ class _toyrScreenState extends State<toyrScreen> {
   bool _isLoading = false;
   var packageId;
 
+// @override
+// void initState() async {
+//   super.initState();
+//   FirebaseFirestore.instance.collection(collectionPath)
+// }
+
   void _pickImage() async {
     setState(() {
       _isLoading = true;
@@ -45,10 +53,7 @@ class _toyrScreenState extends State<toyrScreen> {
         .ref()
         .child('packages/' + packageId + '/memories/')
         .child(DateTime.now().toString() + '.jpg');
-    print("you are at 1");
-    print(packageId);
-    print("you are at 2");
-    print(packageId);
+
     await ref.putFile(_pickedImage).onComplete;
 
     var url = await ref.getDownloadURL();
@@ -57,22 +62,16 @@ class _toyrScreenState extends State<toyrScreen> {
         .collection('packages')
         .document(packageId)
         .update({'memories': FieldValue.arrayUnion(listOfMemories)});
-    
-    print("you are at 3");
-    print(packageId);
+
     setState(() {
       // listOfMemories.add(url);
       _isLoading = false;
     });
-    print("you are at 4");
-    print(packageId);
-    print(listOfMemories);
-    // setState(() {
-    //   profileImage = _pickedImage;
-    // });
-    // widget._imageFn(profileImage!);
   }
 
+  bool _isFavourite = false;
+  bool _isFirstTimeLoaded = true;
+  bool _isFavouriteLoading = false;
   @override
   Widget build(BuildContext context) {
     final arguments = ModalRoute.of(context)!.settings.arguments as Map;
@@ -81,38 +80,88 @@ class _toyrScreenState extends State<toyrScreen> {
     final DocumentReference _productRef =
         FirebaseFirestore.instance.doc("packages/" + packageId);
     File? profileImage;
+    if (_isFirstTimeLoaded) {
+      final ffi = FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser.uid)
+          .get();
+      ffi.then((value) {
+        final list = value.get('listOfFavourites') as List<dynamic>;
 
-    // final List<place> places = [
-    //   place(
-    //       id: "p1",
-    //       name: "Iskcon Temple",
-    //       imgUrl:
-    //           "https://lh5.googleusercontent.com/p/AF1QipMz9P5BrDQATamw27O9h08B9yt0l71m3v4IWzwj=w1080-k-no"),
-    //   place(
-    //       id: "p2",
-    //       name: "Gopi talav",
-    //       imgUrl:
-    //           "http://touristinformationcenter.net/wp-content/uploads/2021/09/gopi-4.jpg"),
-    //   place(
-    //       id: "p3",
-    //       name: "Dumas",
-    //       imgUrl:
-    //           "https://i.pinimg.com/736x/fe/8c/4b/fe8c4b4f17d110af461affb6f880f00a.jpg"),
-    //   place(
-    //       id: "p4",
-    //       name: "Woop",
-    //       imgUrl:
-    //           "https://pcbodiwala.com/storage/work_experience/5fc5dc150256a1606802453.jpeg"),
-    //   place(
-    //       id: "p5",
-    //       name: "Amazia Water Park",
-    //       imgUrl:
-    //           "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0d/eb/f6/9b/wave-pool.jpg?w=1200&h=1200&s=1")
-    // ];
-    // final imgUrl =
-    //     // "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/International_Business_Center%2C_Piplod%2C_Surat..jpg/250px-International_Business_Center%2C_Piplod%2C_Surat..jpg";
-    //     "https://c0.wallpaperflare.com/preview/403/5/230/bridge-water-building-waterfront.jpg";
-    // // "https://w0.peakpx.com/wallpaper/445/806/HD-wallpaper-surat-city-ab.jpg";
+        _isFirstTimeLoaded = false;
+        if (list.contains(packageId)) {
+          setState(() {
+            _isFavourite = true;
+          });
+        } else {
+          setState(() {
+            _isFavourite = false;
+          });
+        }
+      });
+    }
+    Future<void> _toggleFavourite(Function setStateFul) async {
+      // final sf = await SharedPreferences.getInstance();
+      setStateFul(() {
+        _isFavouriteLoading = true;
+      });
+
+      final document = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser.uid)
+          .get();
+      final listOfFavourites =
+          document.get('listOfFavourites') as List<dynamic>;
+      if (listOfFavourites.contains(packageId)) {
+        listOfFavourites.clear();
+        listOfFavourites.add(packageId);
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser.uid)
+            .update({
+          'listOfFavourites': FieldValue.arrayRemove(listOfFavourites),
+        });
+        // await FirebaseFirestore.instance
+        //     .collection('users')
+        //     .doc(FirebaseAuth.instance.currentUser.uid)
+        //     .update({
+        //   'listOfFavourites': FieldValue.arrayUnion(listOfFavourites),
+        // });
+        setStateFul(() {
+          _isFavourite = false;
+          _isFavouriteLoading = false;
+        });
+      } else {
+        listOfFavourites.add(packageId);
+        // await FirebaseFirestore.instance
+        //     .collection('users')
+        //     .doc(FirebaseAuth.instance.currentUser.uid)
+        //     .update({
+        //   'listOfFavourites': FieldValue.arrayUnion(new List.empty()),
+        // });
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser.uid)
+            .update({
+          'listOfFavourites': FieldValue.arrayUnion(listOfFavourites),
+        });
+        setStateFul(() {
+          _isFavourite = true;
+          _isFavouriteLoading = false;
+        });
+      }
+      // final listOfFavourites = sf.getStringList('listOfFavourites');
+      // if (listOfMemories.contains(packageId)) {
+      //   // final index = listOfMemories.indexOf(packageId);
+      //   listOfMemories.removeWhere((element) => element == packageId);
+      //   _isFavourite = false;
+      // } else {
+      //   _isFavourite = true;
+      //   listOfMemories.add(packageId);
+      // }
+      // sf.setStringList('listOfFavourites', listOfFavourites!);
+    }
+
     return Scaffold(
       // body: CustomScrollView(
       //   slivers: [
@@ -159,11 +208,18 @@ class _toyrScreenState extends State<toyrScreen> {
             DateTime date = createdAt.toDate();
             // print(document[0].get('places'));
             final placeArray = document?.get('places');
+            final views = document?.get('views');
             final memoryArray = document?.get('memories') as List<dynamic>;
             if (firstTimeLoaded) {
               memoryArray.forEach(
                   ((element) => listOfMemories.add(element.toString())));
               firstTimeLoaded = false;
+              Firestore.instance
+                  .collection('packages')
+                  .document(packageId)
+                  .update({
+                'views': views + 1,
+              });
             }
             // memoriesArray
             // print(placeArray);
@@ -240,7 +296,7 @@ class _toyrScreenState extends State<toyrScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "                                                                                                                                                              ",
+                                        "                                                                                                                                           ",
                                         style: TextStyle(
                                             fontSize: 10, color: Colors.white),
                                       ),
@@ -261,19 +317,6 @@ class _toyrScreenState extends State<toyrScreen> {
                                           height: 40,
                                           width: 40,
                                         )))),
-                            // Positioned(
-                            //     top: 10,
-                            //     // bottom: 10,
-                            //     child: Container(
-                            //       // child: Text(""),
-                            //       height: 20,
-                            //       width: double.infinity,
-                            //       decoration: BoxDecoration(
-                            //           color: Colors.red,
-                            //           borderRadius: BorderRadius.only(
-                            //               topLeft: Radius.circular(15),
-                            //               topRight: Radius.circular(15))),
-                            //     )),
                             Positioned(
                                 top: 10,
                                 left: 14,
@@ -292,70 +335,47 @@ class _toyrScreenState extends State<toyrScreen> {
                                     },
                                   ),
                                 )),
+                            StatefulBuilder(builder: (context, setStateFul) {
+                              return _isFavouriteLoading
+                                  ? Positioned(
+                                      top: 20,
+                                      right: 24,
+                                      child: Container(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    )
+                                  : Positioned(
+                                      top: 10,
+                                      right: 34,
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        height: 20,
+                                        width: 20,
+                                        child: IconButton(
+                                          icon: _isFavourite
+                                              ? Icon(
+                                                  Icons.favorite,
+                                                  color: Colors.red,
+                                                )
+                                              : Icon(
+                                                  Icons.favorite_border,
+                                                  color: Colors.white,
+                                                ),
+                                          onPressed: () {
+                                            _toggleFavourite(setStateFul);
+                                          },
+                                        ),
+                                      ));
+                            }),
                           ],
                         ),
                       ),
-                      // Container(
-                      //     alignment: Alignment.center,
-                      //     decoration: BoxDecoration(
-                      //       borderRadius: BorderRadius.circular(15),
-                      //       color: Colors.black26,
-                      //     ),
-                      //     margin: EdgeInsets.only(top: 2, left: 10, right: 10),
-                      //     padding: EdgeInsets.all(8),
-                      //     height: MediaQuery.of(context).size.height * 0.21,
-                      //     // decoration: BoxDecoration(color: Colors.grey[200]),
-                      //     child: GridView(
-                      //         physics: BouncingScrollPhysics(),
-                      //         gridDelegate:
-                      //             const SliverGridDelegateWithFixedCrossAxisCount(
-                      //                 crossAxisCount: 2,
-                      //                 childAspectRatio: 2.5,
-                      //                 crossAxisSpacing: 10,
-                      //                 mainAxisSpacing: 10),
-                      //         children: [
-                      //           Container(
-                      //             alignment: Alignment.center,
-                      //             // height: 100,
-                      //             decoration: BoxDecoration(
-                      //                 borderRadius: BorderRadius.circular(15),
-                      //                 color: Colors.grey[200]),
-                      //             child: ListTile(
-                      //               leading: Icon(Icons.add),
-                      //               title: Text("Create Package"),
-                      //             ),
-                      //           ),
-                      //           Container(
-                      //             // height: 200,
-                      //             decoration: BoxDecoration(
-                      //                 borderRadius: BorderRadius.circular(15),
-                      //                 color: Colors.grey[200]),
-                      //             child: ListTile(
-                      //               leading: Icon(Icons.add),
-                      //               title: Text("Create Package"),
-                      //             ),
-                      //           ),
-                      //           Container(
-                      //             // height: 80,
-                      //             decoration: BoxDecoration(
-                      //                 borderRadius: BorderRadius.circular(15),
-                      //                 color: Colors.grey[200]),
-                      //             child: ListTile(
-                      //               leading: Icon(Icons.add),
-                      //               title: Text("Create Package"),
-                      //             ),
-                      //           ),
-                      //           Container(
-                      //             // height: 80,
-                      //             decoration: BoxDecoration(
-                      //                 borderRadius: BorderRadius.circular(15),
-                      //                 color: Colors.grey[200]),
-                      //             child: ListTile(
-                      //               leading: Icon(Icons.add),
-                      //               title: Text("Create Package"),
-                      //             ),
-                      //           )
-                      //         ])),
+
                       Container(
                         padding: EdgeInsets.only(left: 15, bottom: 10),
                         child: Text(
@@ -365,71 +385,20 @@ class _toyrScreenState extends State<toyrScreen> {
                         ),
                       ),
                       Container(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Column(
-                              children: [
-                                Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Container(
-                                      margin:
-                                          EdgeInsets.symmetric(horizontal: 8),
-                                      padding: EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                            width: 3, color: Colors.grey),
-                                        borderRadius:
-                                            BorderRadius.circular(100),
-                                        color: Colors.white,
-                                      ),
-                                      child: Icon(
-                                        Icons.location_on,
-                                        // Icons.location_on,
-                                        size: 55,
-                                      ),
-                                    ),
-                                    Container(
-                                      margin:
-                                          EdgeInsets.symmetric(horizontal: 5),
-                                      padding: EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(100),
-                                        color: Colors.grey[300],
-                                      ),
-                                      child: Icon(
-                                        Icons.location_on,
-                                        size: 50,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 3,
-                                ),
-                                Container(
-                                  child: Text(
-                                    "View Map",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w500),
-                                  ),
-                                )
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    _pickImage();
-                                  },
-                                  child: Stack(
+                        child: SingleChildScrollView(
+                          physics: BouncingScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Column(
+                                children: [
+                                  Stack(
                                     alignment: Alignment.center,
                                     children: [
                                       Container(
                                         margin:
-                                            EdgeInsets.symmetric(horizontal: 5),
+                                            EdgeInsets.symmetric(horizontal: 8),
                                         padding: EdgeInsets.all(10),
                                         decoration: BoxDecoration(
                                           border: Border.all(
@@ -440,7 +409,8 @@ class _toyrScreenState extends State<toyrScreen> {
                                         ),
                                         child: Icon(
                                           Icons.location_on,
-                                          size: 55,
+                                          // Icons.location_on,
+                                          size: 50,
                                         ),
                                       ),
                                       Container(
@@ -451,169 +421,227 @@ class _toyrScreenState extends State<toyrScreen> {
                                           borderRadius:
                                               BorderRadius.circular(100),
                                           color: Colors.grey[300],
-                                        ),
-                                        child: Icon(
-                                          Icons.add_a_photo,
-                                          size: 50,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 3,
-                                ),
-                                Container(
-                                  child: Text(
-                                    "add memories",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w500),
-                                  ),
-                                )
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).pushNamed(
-                                        updatePackageScreen.Routename,
-                                        arguments: {
-                                          'packageName': packageName,
-                                          'imgUrl': imgUrl,
-                                          'placeArray': placeArray,
-                                          'city': city,
-                                          'id': document!.id
-                                        });
-                                  },
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Container(
-                                        margin:
-                                            EdgeInsets.symmetric(horizontal: 5),
-                                        padding: EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                              width: 3, color: Colors.grey),
-                                          borderRadius:
-                                              BorderRadius.circular(100),
-                                          color: Colors.white,
                                         ),
                                         child: Icon(
                                           Icons.location_on,
-                                          size: 55,
-                                        ),
-                                      ),
-                                      Container(
-                                        margin:
-                                            EdgeInsets.symmetric(horizontal: 5),
-                                        padding: EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(100),
-                                          color: Colors.grey[300],
-                                        ),
-                                        child: Icon(
-                                          Icons.update_sharp,
-                                          size: 50,
+                                          size: 45,
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
-                                SizedBox(
-                                  height: 3,
-                                ),
-                                Container(
-                                  child: Text(
-                                    "Update",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w500),
+                                  SizedBox(
+                                    height: 3,
                                   ),
-                                )
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (ctx) {
-                                          return AlertDialog(
-                                            title: Text('Delete'),
-                                            content: Text(
-                                                'Are you sure you want to delete this package ?'),
-                                            actions: [
-                                              FlatButton(
-                                                  onPressed: () async {
-                                                    await Firestore.instance
-                                                        .collection('packages')
-                                                        .document(document!.id)
-                                                        .delete();
-                                                    Navigator.of(context)
-                                                        .pushNamed('/');
-                                                  },
-                                                  child: Text('Delete')),
-                                              FlatButton(
-                                                  onPressed: () {
-                                                    Navigator.of(ctx).pop();
-                                                  },
-                                                  child: Text('Cancel'))
-                                            ],
-                                          );
-                                        });
-                                  },
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Container(
-                                        margin:
-                                            EdgeInsets.symmetric(horizontal: 5),
-                                        padding: EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                              width: 3, color: Colors.grey),
-                                          borderRadius:
-                                              BorderRadius.circular(100),
-                                          color: Colors.white,
+                                  Container(
+                                    child: Text(
+                                      "View Map",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      _pickImage();
+                                    },
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Container(
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 5),
+                                          padding: EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                                width: 3, color: Colors.grey),
+                                            borderRadius:
+                                                BorderRadius.circular(100),
+                                            color: Colors.white,
+                                          ),
+                                          child: Icon(
+                                            Icons.location_on,
+                                            size: 50,
+                                          ),
                                         ),
-                                        child: Icon(
-                                          Icons.delete_forever,
-                                          size: 55,
+                                        Container(
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 5),
+                                          padding: EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(100),
+                                            color: Colors.grey[300],
+                                          ),
+                                          child: Icon(
+                                            Icons.add_a_photo,
+                                            size: 45,
+                                          ),
                                         ),
-                                      ),
-                                      Container(
-                                        margin:
-                                            EdgeInsets.symmetric(horizontal: 5),
-                                        padding: EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(100),
-                                          color: Colors.grey[300],
-                                        ),
-                                        child: Icon(
-                                          Icons.delete_forever,
-                                          size: 50,
-                                        ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                SizedBox(
-                                  height: 3,
-                                ),
-                                Container(
-                                  child: Text(
-                                    "Delete",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w500),
+                                  SizedBox(
+                                    height: 3,
                                   ),
-                                )
-                              ],
-                            ),
-                          ],
+                                  Container(
+                                    child: Text(
+                                      "add memories",
+                                      style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).pushNamed(
+                                          updatePackageScreen.Routename,
+                                          arguments: {
+                                            'packageName': packageName,
+                                            'imgUrl': imgUrl,
+                                            'placeArray': placeArray,
+                                            'city': city,
+                                            'id': document!.id,
+                                            'isPublic': document.get('isPublic')
+                                          });
+                                    },
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Container(
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 5),
+                                          padding: EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                                width: 3, color: Colors.grey),
+                                            borderRadius:
+                                                BorderRadius.circular(100),
+                                            color: Colors.white,
+                                          ),
+                                          child: Icon(
+                                            Icons.location_on,
+                                            size: 50,
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 5),
+                                          padding: EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(100),
+                                            color: Colors.grey[300],
+                                          ),
+                                          child: Icon(
+                                            Icons.update_sharp,
+                                            size: 45,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 3,
+                                  ),
+                                  Container(
+                                    child: Text(
+                                      "Update",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (ctx) {
+                                            return AlertDialog(
+                                              title: Text('Delete'),
+                                              content: Text(
+                                                  'Are you sure you want to delete this package ?'),
+                                              actions: [
+                                                FlatButton(
+                                                    onPressed: () async {
+                                                      await Firestore.instance
+                                                          .collection(
+                                                              'packages')
+                                                          .document(
+                                                              document!.id)
+                                                          .delete();
+                                                      Navigator.of(context)
+                                                          .pushNamed('/');
+                                                    },
+                                                    child: Text('Delete')),
+                                                FlatButton(
+                                                    onPressed: () {
+                                                      Navigator.of(ctx).pop();
+                                                    },
+                                                    child: Text('Cancel'))
+                                              ],
+                                            );
+                                          });
+                                    },
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Container(
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 5),
+                                          padding: EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                                width: 3, color: Colors.grey),
+                                            borderRadius:
+                                                BorderRadius.circular(100),
+                                            color: Colors.white,
+                                          ),
+                                          child: Icon(
+                                            Icons.delete_forever,
+                                            size: 50,
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 5),
+                                          padding: EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(100),
+                                            color: Colors.grey[300],
+                                          ),
+                                          child: Icon(
+                                            Icons.delete_forever,
+                                            size: 45,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 3,
+                                  ),
+                                  Container(
+                                    child: Text(
+                                      "Delete",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       Container(
