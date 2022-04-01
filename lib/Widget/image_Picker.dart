@@ -18,12 +18,12 @@ class _AuthImagePickerState extends State<AuthImagePicker> {
   final String imgUrl;
   _AuthImagePickerState(this.imgUrl, this.updateScreen);
   void _pickImage({required bool iscamera}) async {
-    final _pickedImage = await ImagePicker.pickImage(
+    final _pickedImage = await ImagePicker.platform.pickImage(
       source: iscamera ? ImageSource.camera : ImageSource.gallery,
       imageQuality: 50,
     );
     setState(() {
-      selectedImage = _pickedImage;
+      selectedImage = File(_pickedImage!.path);
     });
     widget._imageFn(selectedImage!);
   }

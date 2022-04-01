@@ -85,12 +85,22 @@ class _createPackageScreenState extends State<createPackageScreen> {
           .child(_packageName.toString() + '.jpg');
 
       final uploadtask = ref.putFile(_pickedImage!);
-      var url = (await uploadtask).ref.getDownloadURL();
+      var url = await (await uploadtask).ref.getDownloadURL();
 
       // var url = await ref.getDownloadURL();
       // print('isPublic' + _isPublic.toString());
       // print('user' + FirebaseAuth.instance.currentUser.email);
-
+      print({
+        'packageName': _packageName,
+        'imgUrl': url,
+        'city': valueChoose,
+        'isPublic': _isPublic,
+        'createdAt': Timestamp.now(),
+        'views': 0,
+        'createdBy': FirebaseAuth.instance.currentUser!.email,
+        'places': FieldValue.arrayUnion(finalSelectedPlaces!),
+        'memories': FieldValue.arrayUnion(new List.empty())
+      });
       await FirebaseFirestore.instance.collection('packages').doc(id).set({
         'packageName': _packageName,
         'imgUrl': url,
@@ -110,7 +120,7 @@ class _createPackageScreenState extends State<createPackageScreen> {
       Navigator.of(context)
           .pushNamed(toyrScreen.Routename, arguments: {'id': id});
     } on PlatformException catch (error) {
-      String? errormsg = 'Authentication Failed!';
+      String? errormsg = 'Some thing wrong happened!';
       if (error.message != null) {
         errormsg = error.message;
       }
@@ -119,11 +129,12 @@ class _createPackageScreenState extends State<createPackageScreen> {
       });
       _showErrorDialog(errormsg);
     } catch (error) {
-      const errormsg = 'Could not Authenticate you. Please try again later';
+      const errormsg = 'Some thing wrong happened. Please try again later';
       setState(() {
         _isLoading = false;
       });
-      _showErrorDialog(errormsg);
+      print(error.toString());
+      _showErrorDialog(errormsg.toString());
     }
     // submitAndAddUser(_authData['Email'].trim(), _authData['Password'].trim(),
     //     '', authType == AuthType.Login, context);

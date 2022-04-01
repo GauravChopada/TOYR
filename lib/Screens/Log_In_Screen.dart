@@ -472,7 +472,7 @@ class _LogInScreenState extends State<LogInScreen> {
 
         final ff = await FirebaseFirestore.instance
             .collection('users')
-            .document(authresult.user.uid)
+            .doc(authresult.user!.uid)
             .get();
 
         final sp = await SharedPreferences.getInstance();
@@ -493,19 +493,20 @@ class _LogInScreenState extends State<LogInScreen> {
         var ref = FirebaseStorage.instance
             .ref()
             .child('user-images')
-            .child(authresult.user.uid + '.jpg');
+            .child(authresult.user!.uid + '.jpg');
 
-        await ref.putFile(_pickedImage).onComplete;
+        final _uploadTask = ref.putFile(_pickedImage!);
+        var url = await (await _uploadTask).ref.getDownloadURL();
 
-        var url = await ref.getDownloadURL();
+        // var url = await ref.getDownloadURL();
         final sp = await SharedPreferences.getInstance();
         sp.setString('profileImgUrl', url);
         sp.setString('userName', _authData['UserName'].toString());
         sp.setStringList('listOfFavourites', new List.empty());
-        await Firestore.instance
+        await FirebaseFirestore.instance
             .collection('users')
-            .document(authresult.user.uid)
-            .setData({
+            .doc(authresult.user!.uid)
+            .set({
           'UserName': _authData['UserName'],
           'Email': _authData['Email'],
           'imageUrl': url,
@@ -531,7 +532,7 @@ class _LogInScreenState extends State<LogInScreen> {
       });
       _showErrorDialog(errormsg);
     }
-    print(FirebaseAuth.instance.currentUser.uid);
+    print(FirebaseAuth.instance.currentUser!.uid);
     Navigator.of(context).pushReplacementNamed('/');
     // submitAndAddUser(_authData['Email'].trim(), _authData['Password'].trim(),
     //     '', authType == AuthType.Login, context);

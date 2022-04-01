@@ -31,7 +31,7 @@ class _updatePackageScreenState extends State<updatePackageScreen> {
   final GlobalKey<FormState> _formkey = GlobalKey();
   List listItem = ['Surat', 'Ahmedabad', 'Kutch'];
   List<String> listOfPlaces = new List<String>.empty(growable: true);
-  List<String>? finalSelectedPlaces = new List<String>.empty(growable: true);
+  List<dynamic>? finalSelectedPlaces = new List<dynamic>.empty(growable: true);
   bool _isLoading = false;
   bool _isPublic = false;
   bool _isFirstTimeLoaded = true;
@@ -118,9 +118,10 @@ class _updatePackageScreenState extends State<updatePackageScreen> {
               .child('packages/' + DateTime.now().toString() + '/packageDP/')
               .child(_packageName.toString() + '.jpg');
 
-          await ref.putFile(_pickedImage).onComplete;
+          final _uploadTask = ref.putFile(_pickedImage!);
+          url = await (await _uploadTask).ref.getDownloadURL();
 
-          url = await ref.getDownloadURL();
+          // url = await ref.getDownloadURL();
         }
         // var id = DateTime.now().toString();
 
@@ -128,16 +129,16 @@ class _updatePackageScreenState extends State<updatePackageScreen> {
         print('imgUrl: ' + url.toString());
         print('city ' + valueChoose.toString());
         print('places ' + finalSelectedPlaces.toString());
-        await Firestore.instance
+        await FirebaseFirestore.instance
             .collection('packages')
-            .document(id)
+            .doc(id)
             .update({'places': FieldValue.delete()});
-        await Firestore.instance.collection('packages').document(id).update({
+        await FirebaseFirestore.instance.collection('packages').doc(id).update({
           'packageName': _packageName,
           'imgUrl': url,
           'city': valueChoose,
           'isPublic': _isPublic,
-          'places': FieldValue.arrayUnion(finalSelectedPlaces)
+          'places': FieldValue.arrayUnion(finalSelectedPlaces!)
         });
 
         setState(() {
@@ -575,12 +576,12 @@ class _updatePackageScreenState extends State<updatePackageScreen> {
                                                               // });
                                                               bool firstTime =
                                                                   true;
-                                                              List<String>?
+                                                              List<dynamic>?
                                                                   selectedPlaces =
                                                                   finalSelectedPlaces ==
                                                                           null
                                                                       ? new List<
-                                                                              String>.empty(
+                                                                              dynamic>.empty(
                                                                           growable:
                                                                               true)
                                                                       : finalSelectedPlaces;

@@ -93,6 +93,7 @@ class _favouritesScreenState extends State<favouritesScreen> {
                     child: Image.network(profileImgUrl, fit: BoxFit.cover),
                   ),
                   Container(
+                    padding: EdgeInsets.only(left: 15),
                     child: Text(userName,
                         style: GoogleFonts.comfortaa(
                             fontSize: 36,
@@ -166,9 +167,9 @@ class _favouritesScreenState extends State<favouritesScreen> {
         ),
         child: Scaffold(
             body: FutureBuilder<DocumentSnapshot>(
-                future: Firestore.instance
+                future: FirebaseFirestore.instance
                     .collection('users')
-                    .doc(FirebaseAuth.instance.currentUser.uid)
+                    .doc(FirebaseAuth.instance.currentUser!.uid)
                     .get(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {

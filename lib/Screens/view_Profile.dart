@@ -40,14 +40,14 @@ class _viewProfileState extends State<viewProfile> {
       },
     );
     if (_isFirstTimeLoaded) {
-      final ff = Firestore.instance.collection('packages').get();
+      final ff = FirebaseFirestore.instance.collection('packages').get();
       ff.then(
         (value) {
           setState(() {
             final document = value.docs;
             document.forEach((element) {
               if (element.get('createdBy') ==
-                  FirebaseAuth.instance.currentUser.email) {
+                  FirebaseAuth.instance.currentUser!.email) {
                 yourTOYR.add(TOYR(
                     toyrId: element.id,
                     name: element.get('packageName'),
@@ -152,7 +152,9 @@ class _viewProfileState extends State<viewProfile> {
                                 ),
                                 Text(
                                     'Email: ' +
-                                        FirebaseAuth.instance.currentUser.email,
+                                        (FirebaseAuth
+                                                .instance.currentUser!.email)
+                                            .toString(),
                                     style: GoogleFonts.lato(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,

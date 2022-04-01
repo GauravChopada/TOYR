@@ -42,14 +42,16 @@ class _HomeScreenState extends State<HomeScreen> {
   String userName = '';
 
   Future<void> _goToFavourites() async {
-    final doc = await Firestore.instance
+    final doc = await FirebaseFirestore.instance
         .collection('users')
-        .doc(FirebaseAuth.instance.currentUser.uid)
+        .doc(FirebaseAuth.instance.currentUser!.uid)
         .get();
     final listOfFavourites = doc.get('listOfFavourites') as List<dynamic>;
     listOfFavourites.forEach((element) async {
-      final doc1 =
-          await Firestore.instance.collection('packages').doc(element).get();
+      final doc1 = await FirebaseFirestore.instance
+          .collection('packages')
+          .doc(element)
+          .get();
       print(listOfFavourites);
       listOfFavouriteTOYRS.add(new TOYR(
           toyrId: element,
@@ -145,6 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Image.network(profileImgUrl, fit: BoxFit.cover),
                       ),
                       Container(
+                        padding: EdgeInsets.only(left: 15),
                         child: Text(userName,
                             style: GoogleFonts.comfortaa(
                                 fontSize: 36,
@@ -258,7 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       publicTOYR.sort((t1, t2) => t2.views.compareTo(t1.views));
                       document.forEach((element) {
                         if (element.get('createdBy') ==
-                            FirebaseAuth.instance.currentUser.email) {
+                            FirebaseAuth.instance.currentUser!.email) {
                           yourTOYR.add(TOYR(
                               toyrId: element.id,
                               name: element.get('packageName'),
