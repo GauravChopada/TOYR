@@ -9,10 +9,13 @@ import 'Screens/home_page.dart';
 import 'Screens/toyr_screen.dart';
 import 'Screens/create_Package.dart';
 import 'Screens/update_Package.dart';
+import 'Screens/view_Profile.dart';
 import 'Screens/memory_Screen.dart';
 import 'Providers/Auth.dart';
+import 'Screens/view_All_TOYRS.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'Screens/favourites_Screen.dart';
 
 void main() async {
   // WidgetsFlutterBinding.ensureInitialized();
@@ -110,6 +113,9 @@ class _MyAppState extends State<MyApp> {
               HomeScreen.Routename: (ctx) => HomeScreen(),
               updatePackageScreen.Routename: (context) => updatePackageScreen(),
               memoryScreen.Routename: (context) => memoryScreen(),
+              viewProfile.Routename: (context) => viewProfile(),
+              viewAllTOYRSScreen.Routename: (context) => viewAllTOYRSScreen(),
+              favouritesScreen.Routename: (context) => favouritesScreen(),
             },
           );
         }));

@@ -4,11 +4,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toyr2/Providers/Auth.dart';
 import 'package:toyr2/Screens/Auth_Screen.dart';
 import 'package:toyr2/Screens/create_Package.dart';
 import '../Models/TOYR.dart';
+import 'view_Profile.dart';
+import 'favourites_Screen.dart';
 import '../Widget/TOYR_widget.dart';
+import 'view_All_TOYRS.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -19,89 +23,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<TOYR> upcomingTOYR = [
-    TOYR(
-        toyrId: "p1",
-        name: "Surat Trip",
-        imgUrl:
-            "https://c0.wallpaperflare.com/preview/403/5/230/bridge-water-building-waterfront.jpg"),
-    TOYR(
-        toyrId: "p2",
-        name: "Mumbai",
-        imgUrl:
-            "https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bXVtYmFpfGVufDB8fDB8fA%3D%3D&w=1000&q=80"),
-    TOYR(
-        toyrId: "p3",
-        name: "Surat",
-        imgUrl:
-            "https://w0.peakpx.com/wallpaper/445/806/HD-wallpaper-surat-city-ab.jpg"),
-    TOYR(
-        toyrId: "p4",
-        name: "Surat",
-        imgUrl:
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/International_Business_Center%2C_Piplod%2C_Surat..jpg/250px-International_Business_Center%2C_Piplod%2C_Surat..jpg"),
-    TOYR(
-        toyrId: "p5",
-        name: "Surat",
-        imgUrl:
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/International_Business_Center%2C_Piplod%2C_Surat..jpg/250px-International_Business_Center%2C_Piplod%2C_Surat..jpg")
-  ];
-
-  final List<TOYR> pastTOYR = [
-    TOYR(
-        toyrId: "p1",
-        name: "Surat",
-        imgUrl:
-            "https://c0.wallpaperflare.com/preview/403/5/230/bridge-water-building-waterfront.jpg"),
-    TOYR(
-        toyrId: "p2",
-        name: "Mumbai",
-        imgUrl:
-            "https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bXVtYmFpfGVufDB8fDB8fA%3D%3D&w=1000&q=80"),
-    TOYR(
-        toyrId: "p3",
-        name: "Surat",
-        imgUrl:
-            "https://w0.peakpx.com/wallpaper/445/806/HD-wallpaper-surat-city-ab.jpg"),
-    TOYR(
-        toyrId: "p4",
-        name: "Surat",
-        imgUrl:
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/International_Business_Center%2C_Piplod%2C_Surat..jpg/250px-International_Business_Center%2C_Piplod%2C_Surat..jpg"),
-    TOYR(
-        toyrId: "p5",
-        name: "Surat",
-        imgUrl:
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/International_Business_Center%2C_Piplod%2C_Surat..jpg/250px-International_Business_Center%2C_Piplod%2C_Surat..jpg")
-  ];
-
-  final List<TOYR> sharedTOYR = [
-    TOYR(
-        toyrId: "p1",
-        name: "Surat",
-        imgUrl:
-            "https://c0.wallpaperflare.com/preview/403/5/230/bridge-water-building-waterfront.jpg"),
-    TOYR(
-        toyrId: "p2",
-        name: "Mumbai",
-        imgUrl:
-            "https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bXVtYmFpfGVufDB8fDB8fA%3D%3D&w=1000&q=80"),
-    TOYR(
-        toyrId: "p3",
-        name: "Surat",
-        imgUrl:
-            "https://w0.peakpx.com/wallpaper/445/806/HD-wallpaper-surat-city-ab.jpg"),
-    TOYR(
-        toyrId: "p4",
-        name: "Surat",
-        imgUrl:
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/International_Business_Center%2C_Piplod%2C_Surat..jpg/250px-International_Business_Center%2C_Piplod%2C_Surat..jpg"),
-    TOYR(
-        toyrId: "p5",
-        name: "Surat",
-        imgUrl:
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/International_Business_Center%2C_Piplod%2C_Surat..jpg/250px-International_Business_Center%2C_Piplod%2C_Surat..jpg")
-  ];
+  final List<TOYR> publicTOYR = [];
+  final List<TOYR> yourTOYR = [];
 
   final _advancedDrawerController = AdvancedDrawerController();
   final Future<FirebaseApp> _initilization = Firebase.initializeApp();
@@ -110,8 +33,69 @@ class _HomeScreenState extends State<HomeScreen> {
     _advancedDrawerController.showDrawer();
   }
 
+  bool _isLoadedFirstTime = true;
+  bool _isLoadedFirstTime2 = true;
+  var listOfFavourites = List<dynamic>.empty(growable: true);
+  List<TOYR> listOfFavouriteTOYRS = new List<TOYR>.empty(growable: true);
+  String profileImgUrl =
+      'https://monomousumi.com/wp-content/uploads/anonymous-user-3.png';
+  String userName = '';
+
+  Future<void> _goToFavourites() async {
+    final doc = await Firestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .get();
+    final listOfFavourites = doc.get('listOfFavourites') as List<dynamic>;
+    listOfFavourites.forEach((element) async {
+      final doc1 =
+          await Firestore.instance.collection('packages').doc(element).get();
+      print(listOfFavourites);
+      listOfFavouriteTOYRS.add(new TOYR(
+          toyrId: element,
+          name: doc1.get('packageName'),
+          imgUrl: doc1.get('imgUrl'),
+          createdAt: doc1.get('createdAt'),
+          views: doc1.get('views')));
+      print(listOfFavouriteTOYRS);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final sf = SharedPreferences.getInstance();
+    sf.then(
+      (value) {
+        profileImgUrl = value.getString('profileImgUrl')!;
+        userName = value.getString('userName')!;
+      },
+    );
+
+    // if (_isLoadedFirstTime2) {
+    //   final doc = Firestore.instance
+    //       .collection('users')
+    //       .doc(FirebaseAuth.instance.currentUser.uid)
+    //       .get()
+    //       .then((value) {
+    //     setState(() {
+    //       listOfFavourites = value.get('listOfFavourites') as List<dynamic>;
+    //     });
+    //   });
+    //   print('listOfFavourites' + listOfFavourites.toString());
+    //   listOfFavourites.forEach((element) async {
+    //     final doc1 =
+    //         await Firestore.instance.collection('packages').doc(element).get();
+    //     listOfFavouriteTOYRS.add(new TOYR(
+    //         toyrId: element,
+    //         name: doc1.get('packageName'),
+    //         imgUrl: doc1.get('imgUrl'),
+    //         createdAt: doc1.get('createdAt'),
+    //         views: doc1.get('views')));
+    //   });
+    //   print('listOfFavouriteTOYRS : ' + listOfFavouriteTOYRS.toString());
+    //   _isLoadedFirstTime2 = false;
+    // }
+
     return FutureBuilder<FirebaseApp>(
       future: _initilization,
       builder: (ctx, snapshot) {
@@ -146,34 +130,55 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      // Container(
-                      //   width: 128.0,
-                      //   height: 128.0,
-                      //   margin: const EdgeInsets.only(
-                      //     top: 24.0,
-                      //     bottom: 64.0,
-                      //   ),
-                      //   clipBehavior: Clip.antiAlias,
-                      //   decoration: BoxDecoration(
-                      //     color: Colors.black26,
-                      //     shape: BoxShape.circle,
-                      //   ),
-                      //   child: Image.asset(
-                      //     'assets/images/flutter_logo.png',
-                      //   ),
-                      // ),
+                      Container(
+                        width: 128.0,
+                        height: 128.0,
+                        margin: const EdgeInsets.only(
+                          top: 24.0,
+                          bottom: 30.0,
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        decoration: BoxDecoration(
+                          color: Colors.black26,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Image.network(profileImgUrl, fit: BoxFit.cover),
+                      ),
+                      Container(
+                        child: Text(userName,
+                            style: GoogleFonts.comfortaa(
+                                fontSize: 36,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white)),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Divider(
+                        indent: 20,
+                        color: Colors.grey,
+                      ),
                       ListTile(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).pushNamed('/');
+                        },
                         leading: Icon(Icons.home),
                         title: Text('Home'),
                       ),
                       ListTile(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context)
+                              .pushNamed(viewProfile.Routename);
+                        },
                         leading: Icon(Icons.account_circle_rounded),
                         title: Text('Profile'),
                       ),
                       ListTile(
-                        onTap: () {},
+                        onTap: () async {
+                          Navigator.of(context).pushNamed(
+                            favouritesScreen.Routename,
+                          );
+                        },
                         leading: Icon(Icons.favorite),
                         title: Text('Favourites'),
                       ),
@@ -185,7 +190,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       ListTile(
                         onTap: () {
                           FirebaseAuth.instance.signOut();
-                          // Auth().logOut();
+                          var sf = SharedPreferences.getInstance();
+                          sf.then((value) {
+                            value.clear();
+                            value.commit();
+                          });
+
                           Navigator.of(context).pushNamed('/');
                         },
                         leading: Icon(Icons.logout_rounded),
@@ -210,24 +220,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             child: Scaffold(
-              // floatingActionButton: FloatingActionButton(
-              //   onPressed: () {
-              //     FirebaseFirestore.instance
-              //         .collection("chat")
-              //         .snapshots()
-              //         .listen((event) {
-              //       print(event.docs[0].get("Name"));
-              //     });
-              //   },
-              // ),
               body: FutureBuilder<QuerySnapshot>(
                   future: FirebaseFirestore.instance
                       .collection("packages")
                       .orderBy('createdAt', descending: true)
                       .get(),
                   builder: (ctx, snapshot) {
-                    // print("**************");
-                    // print(document[0].get('packageName'));
                     if (snapshot.hasError) {
                       return Center(
                         child: Text("Error 404"),
@@ -243,7 +241,36 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Text("just a Sec...."),
                       );
                     }
-                    final document = snapshot.data!.docs;
+                    if (_isLoadedFirstTime) {
+                      final document = snapshot.data!.docs;
+                      publicTOYR.clear();
+                      yourTOYR.clear();
+                      document.forEach((element) {
+                        if (element.get('isPublic')) {
+                          publicTOYR.add(TOYR(
+                              toyrId: element.id,
+                              name: element.get('packageName'),
+                              imgUrl: element.get('imgUrl'),
+                              createdAt: element.get('createdAt'),
+                              views: element.get('views')));
+                        }
+                      });
+                      publicTOYR.sort((t1, t2) => t2.views.compareTo(t1.views));
+                      document.forEach((element) {
+                        if (element.get('createdBy') ==
+                            FirebaseAuth.instance.currentUser.email) {
+                          yourTOYR.add(TOYR(
+                              toyrId: element.id,
+                              name: element.get('packageName'),
+                              imgUrl: element.get('imgUrl'),
+                              createdAt: element.get('createdAt'),
+                              views: element.get('views')));
+                        }
+                      });
+                      _isLoadedFirstTime = false;
+                    }
+
+                    // print(publicTOYR);
                     return Container(
                       child: ListView(
                         physics: BouncingScrollPhysics(),
@@ -367,40 +394,81 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ])),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Text(
-                              "UPCOMING TOYRS",
-                              style: GoogleFonts.roboto(
-                                  fontSize: 14, fontWeight: FontWeight.bold),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "YOUR TOYRS",
+                                  style: GoogleFonts.roboto(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pushNamed(
+                                          viewAllTOYRSScreen.Routename,
+                                          arguments: {
+                                            'listOfTOYR': yourTOYR,
+                                            'title': 'YOUR TOYRS',
+                                          });
+                                    },
+                                    child: Text('View All'))
+                              ],
                             ),
                             margin: const EdgeInsets.only(
                                 top: 20, left: 5, bottom: 10),
                           ),
-                          Container(
-                            height:
-                                MediaQuery.of(context).size.height * 0.565 < 395
-                                    ? MediaQuery.of(context).size.height * 0.5
-                                    : 390,
-                            width: MediaQuery.of(context).size.width,
-                            child: ListView.builder(
-                              itemBuilder: (ctx, i) => Container(
-                                  width: 330,
-                                  child: ToyrWidget(
-                                    name: document[i].get('packageName'),
-                                    imgUrl: document[i].get('imgUrl'),
-                                    id: document[i].id,
-                                    date: document[i].get('createdAt'),
-                                  )),
-                              itemCount: document.length,
-                              scrollDirection: Axis.horizontal,
-                              physics: BouncingScrollPhysics(),
+                          if (yourTOYR.isEmpty)
+                            Container(
+                              padding: EdgeInsets.symmetric(vertical: 30),
+                              child: Center(
+                                  child: Text(
+                                      "You haven't Created Any TOYRS Yet!!")),
                             ),
-                          ),
+                          if (yourTOYR.isNotEmpty)
+                            Container(
+                              height:
+                                  MediaQuery.of(context).size.height * 0.565 <
+                                          395
+                                      ? MediaQuery.of(context).size.height * 0.5
+                                      : 390,
+                              width: MediaQuery.of(context).size.width,
+                              child: ListView.builder(
+                                itemBuilder: (ctx, i) => Container(
+                                    width: 330,
+                                    child: ToyrWidget(
+                                      name: yourTOYR[i].name,
+                                      imgUrl: yourTOYR[i].imgUrl,
+                                      date: yourTOYR[i].createdAt,
+                                      id: yourTOYR[i].toyrId,
+                                    )),
+                                itemCount: yourTOYR.length,
+                                scrollDirection: Axis.horizontal,
+                                physics: BouncingScrollPhysics(),
+                              ),
+                            ),
                           Container(
                             padding: EdgeInsets.symmetric(horizontal: 8),
-                            child: Text(
-                              "PAST TOYRS",
-                              style: GoogleFonts.roboto(
-                                  fontSize: 14, fontWeight: FontWeight.bold),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "TRENDING TOYRS",
+                                  style: GoogleFonts.roboto(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pushNamed(
+                                          viewAllTOYRSScreen.Routename,
+                                          arguments: {
+                                            'listOfTOYR': publicTOYR,
+                                            'title': 'PUBLIC TOYRS',
+                                          });
+                                    },
+                                    child: Text('View All'))
+                              ],
                             ),
                             margin:
                                 EdgeInsets.only(top: 15, left: 5, bottom: 10),
@@ -415,23 +483,39 @@ class _HomeScreenState extends State<HomeScreen> {
                               itemBuilder: (ctx, i) => Container(
                                 width: 330,
                                 child: ToyrWidget(
-                                  name: pastTOYR[i].name,
-                                  imgUrl: pastTOYR[i].imgUrl,
-                                  date: Timestamp.now(),
-                                  id: "YzqQBnD999sJMyY1xFGO",
+                                  name: publicTOYR[i].name,
+                                  imgUrl: publicTOYR[i].imgUrl,
+                                  date: publicTOYR[i].createdAt,
+                                  id: publicTOYR[i].toyrId,
                                 ),
                               ),
-                              itemCount: pastTOYR.length,
+                              itemCount: publicTOYR.length,
                               scrollDirection: Axis.horizontal,
                               physics: BouncingScrollPhysics(),
                             ),
                           ),
                           Container(
                             padding: EdgeInsets.symmetric(horizontal: 8),
-                            child: Text(
-                              "SHARED TOYRS",
-                              style: GoogleFonts.roboto(
-                                  fontSize: 14, fontWeight: FontWeight.bold),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "SHARED TOYRS",
+                                  style: GoogleFonts.roboto(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pushNamed(
+                                          viewAllTOYRSScreen.Routename,
+                                          arguments: {
+                                            'listOfTOYR': publicTOYR,
+                                            'title': 'SHARRED TOYRS',
+                                          });
+                                    },
+                                    child: Text('View All'))
+                              ],
                             ),
                             margin:
                                 EdgeInsets.only(top: 15, left: 5, bottom: 10),
@@ -446,12 +530,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               itemBuilder: (ctx, i) => Container(
                                 width: 330,
                                 child: ToyrWidget(
-                                    date: Timestamp.now(),
-                                    id: "YzqQBnD999sJMyY1xFGO",
-                                    name: sharedTOYR[i].name,
-                                    imgUrl: sharedTOYR[i].imgUrl),
+                                  name: publicTOYR[i].name,
+                                  imgUrl: publicTOYR[i].imgUrl,
+                                  date: publicTOYR[i].createdAt,
+                                  id: publicTOYR[i].toyrId,
+                                ),
                               ),
-                              itemCount: upcomingTOYR.length,
+                              itemCount: publicTOYR.length,
                               scrollDirection: Axis.horizontal,
                               physics: BouncingScrollPhysics(),
                             ),

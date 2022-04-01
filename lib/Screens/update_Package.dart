@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:toyr2/Screens/home_page.dart';
 import 'package:toyr2/Widget/place_Widget.dart';
@@ -32,6 +33,8 @@ class _updatePackageScreenState extends State<updatePackageScreen> {
   List<String> listOfPlaces = new List<String>.empty(growable: true);
   List<String>? finalSelectedPlaces = new List<String>.empty(growable: true);
   bool _isLoading = false;
+  bool _isPublic = false;
+  bool _isFirstTimeLoaded = true;
   @override
   void _ImagePicker(File? image) {
     _pickedImage = image;
@@ -59,7 +62,13 @@ class _updatePackageScreenState extends State<updatePackageScreen> {
     final id = arguments['id'];
     final imgUrl = arguments['imgUrl'];
     final _argCity = arguments['city'];
+    final isPublic = arguments['isPublic'];
     // valueChoose = _argCity;
+    if (_isFirstTimeLoaded) {
+      _isPublic = isPublic;
+      // valueChoose = _argCity;
+      _isFirstTimeLoaded = false;
+    }
     final ArgSelectedPlaces = arguments['placeArray'] as List<dynamic>;
     // finalSelectedPlaces!.clear();
     // ArgSelectedPlaces.forEach(
@@ -127,6 +136,7 @@ class _updatePackageScreenState extends State<updatePackageScreen> {
           'packageName': _packageName,
           'imgUrl': url,
           'city': valueChoose,
+          'isPublic': _isPublic,
           'places': FieldValue.arrayUnion(finalSelectedPlaces)
         });
 
@@ -614,7 +624,7 @@ class _updatePackageScreenState extends State<updatePackageScreen> {
                                                                               ),
                                                                               Container(
                                                                                 padding: EdgeInsets.symmetric(horizontal: 10),
-                                                                                height: 380,
+                                                                                height: 360,
                                                                                 child: GridView.builder(
                                                                                     physics: BouncingScrollPhysics(),
                                                                                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1, crossAxisSpacing: 10, mainAxisSpacing: 10),
@@ -646,7 +656,7 @@ class _updatePackageScreenState extends State<updatePackageScreen> {
                                                                                                 child: CircularProgressIndicator(),
                                                                                               );
                                                                                             }
-                                                                                            if (snapshot.data == null && firstTime) {
+                                                                                            if (snapshot.data == null) {
                                                                                               return Center(
                                                                                                 child: Text("just a Sec...."),
                                                                                               );
@@ -807,7 +817,46 @@ class _updatePackageScreenState extends State<updatePackageScreen> {
                                         ),
                                       );
                                     }),
-                                    //-------------------------
+                                    // -------------------------
+                                    StatefulBuilder(
+                                        builder: (context, setStateFul) {
+                                      return Container(
+                                        padding: EdgeInsets.only(
+                                            left: 15, right: 15),
+                                        alignment: Alignment.centerLeft,
+                                        child: Row(
+                                            // mainAxisAlignment:
+                                            //     MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                'Set Public',
+                                                style: TextStyle(fontSize: 20),
+                                              ),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Container(
+                                                padding: EdgeInsets.all(5),
+                                                margin: EdgeInsets.all(10),
+                                                child: FlutterSwitch(
+                                                    showOnOff: true,
+                                                    activeText: 'yes',
+                                                    inactiveText: 'no',
+                                                    activeColor: Colors
+                                                        .deepPurple.shade400,
+                                                    value: _isPublic,
+                                                    onToggle: (onToggle) {
+                                                      setStateFul(() {
+                                                        _isPublic = onToggle;
+                                                      });
+                                                    }),
+                                              ),
+                                            ]),
+                                      );
+                                    }),
+                                    SizedBox(
+                                      height: 15,
+                                    ),
                                     Container(
                                       padding:
                                           EdgeInsets.symmetric(horizontal: 20),

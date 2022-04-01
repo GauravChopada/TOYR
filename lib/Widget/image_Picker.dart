@@ -47,8 +47,8 @@ class _AuthImagePickerState extends State<AuthImagePicker> {
                     topLeft: Radius.circular(20),
                     bottomLeft: Radius.circular(20)),
                 child: Container(
-                  height: 200,
-                  width: 200,
+                  height: MediaQuery.of(context).size.width / 2 - 10,
+                  width: MediaQuery.of(context).size.width / 2 - 10,
                   color: Colors.white,
                   child: selectedImage == null
                       // ? Image.network(

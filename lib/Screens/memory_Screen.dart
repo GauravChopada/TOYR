@@ -114,17 +114,6 @@ class memoryScreen extends StatelessWidget {
                                     child: Container(
                                       width:
                                           MediaQuery.of(context).size.width / 3,
-                                      // decoration: BoxDecoration(
-                                      // borderRadius: BorderRadius.circular(15),
-                                      // border: Border.all(width: 2)),
-                                      // boxShadow: [
-                                      //   new BoxShadow(
-                                      //     color: Colors.black,
-                                      //     blurRadius: 20.0,
-                                      //   ),
-                                      // ]),
-                                      // height: 200,
-
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(0),
                                         child: Container(

@@ -45,12 +45,11 @@ class _AuthImagePickerState extends State<AuthImagePicker> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    bottomLeft: Radius.circular(20)),
+                borderRadius: BorderRadius.circular(50),
                 child: Container(
-                  height: 200,
-                  width: 200,
+                  // padding: EdgeInsets.all(10),
+                  height: 100,
+                  width: 100,
                   color: Colors.white,
                   child: profileImage == null
                       // ? Image.network(
@@ -87,6 +86,9 @@ class _AuthImagePickerState extends State<AuthImagePicker> {
               )
             ],
           ),
+          SizedBox(
+            height: 10,
+          )
         ],
       ),
     );
