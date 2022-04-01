@@ -14,6 +14,7 @@ import 'Screens/update_Package.dart';
 import 'Screens/view_Profile.dart';
 import 'Screens/memory_Screen.dart';
 import 'Providers/Auth.dart';
+import 'Screens/view_on_map.dart';
 import 'Screens/view_All_TOYRS.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -104,6 +105,8 @@ class _MyAppState extends State<MyApp> {
                   );
                 }),
             theme: ThemeData(
+              primaryColor: Colors.black,
+              accentColor: Colors.black,
               textTheme: GoogleFonts.poppinsTextTheme(
                 Theme.of(context).textTheme,
               ),
@@ -120,6 +123,7 @@ class _MyAppState extends State<MyApp> {
               viewProfile.Routename: (context) => viewProfile(),
               viewAllTOYRSScreen.Routename: (context) => viewAllTOYRSScreen(),
               favouritesScreen.Routename: (context) => favouritesScreen(),
+              viewOnMap.Routename: (context) => viewOnMap(),
             },
           );
         }));

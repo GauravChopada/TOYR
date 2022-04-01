@@ -5,22 +5,20 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-// import 'package:firebase/firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:iconsax/iconsax.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:toyr2/Screens/home_page.dart';
 import 'package:toyr2/Screens/memory_Screen.dart';
 import 'package:toyr2/Screens/update_Package.dart';
 import '../Widget/place_Widget.dart';
 import '../Models/image.dart';
-// import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:toyr2/Models/place.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'view_on_map.dart';
 
 class toyrScreen extends StatefulWidget {
   static const Routename = '/toyrScreen';
@@ -35,12 +33,6 @@ class _toyrScreenState extends State<toyrScreen> {
   bool _isLoading = false;
   var packageId;
 
-// @override
-// void initState() async {
-//   super.initState();
-//   FirebaseFirestore.instance.collection(collectionPath)
-// }
-
   void _pickImage() async {
     final _pickedImages = await ImagePicker.platform.pickMultiImage(
       imageQuality: 50,
@@ -49,9 +41,9 @@ class _toyrScreenState extends State<toyrScreen> {
       _isLoading = true;
     });
     // final List<XFile>? images = await ImagePicker.platform.pickMultiImage();
-    print('1.' + listOfMemories.toString());
+    // print('1.' + listOfMemories.toString());
     for (int i = 0; i < _pickedImages!.length; i++) {
-      print(_pickedImages[i].path);
+      // print(_pickedImages[i].path);
       var _ref = await FirebaseStorage.instance
           .ref()
           .child('packages/' + packageId + '/memories/')
@@ -64,7 +56,7 @@ class _toyrScreenState extends State<toyrScreen> {
       // final uploadTask = ref.putFile(File(_pickedImage.path));
 
       var url = await _ref.ref.getDownloadURL();
-      print(url);
+      // print(url);
       // var url = await (await uploadTask).ref.getDownloadURL();
 
       // var url = await ref.getDownloadURL();
@@ -72,7 +64,7 @@ class _toyrScreenState extends State<toyrScreen> {
     }
     // _pickedImages!.forEach((_pickedImage) async {
     // });
-    print('2.' + listOfMemories.toString());
+    // print('2.' + listOfMemories.toString());
     await FirebaseFirestore.instance
         .collection('packages')
         .doc(packageId)
@@ -428,41 +420,45 @@ class _toyrScreenState extends State<toyrScreen> {
                               children: [
                                 Column(
                                   children: [
-                                    Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Container(
-                                          margin: EdgeInsets.symmetric(
-                                              horizontal: 8),
-                                          padding: EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                                width: 3, color: Colors.grey),
-                                            borderRadius:
-                                                BorderRadius.circular(100),
-                                            color: Colors.white,
+                                    GestureDetector(
+                                      onTap: () => Navigator.pushNamed(
+                                          context, viewOnMap.Routename),
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Container(
+                                            margin: EdgeInsets.symmetric(
+                                                horizontal: 8),
+                                            padding: EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  width: 3, color: Colors.grey),
+                                              borderRadius:
+                                                  BorderRadius.circular(100),
+                                              color: Colors.white,
+                                            ),
+                                            child: Icon(
+                                              Icons.location_on,
+                                              // Icons.location_on,
+                                              size: 50,
+                                            ),
                                           ),
-                                          child: Icon(
-                                            Icons.location_on,
-                                            // Icons.location_on,
-                                            size: 50,
+                                          Container(
+                                            margin: EdgeInsets.symmetric(
+                                                horizontal: 5),
+                                            padding: EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(100),
+                                              color: Colors.grey[300],
+                                            ),
+                                            child: Icon(
+                                              Icons.location_on,
+                                              size: 45,
+                                            ),
                                           ),
-                                        ),
-                                        Container(
-                                          margin: EdgeInsets.symmetric(
-                                              horizontal: 5),
-                                          padding: EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(100),
-                                            color: Colors.grey[300],
-                                          ),
-                                          child: Icon(
-                                            Icons.location_on,
-                                            size: 45,
-                                          ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                     SizedBox(
                                       height: 3,
