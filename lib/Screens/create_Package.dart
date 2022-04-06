@@ -329,9 +329,9 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                           }
                                         }
                                       }
-                                      print('******************************');
-                                      print(valueChoose);
-                                      print(listOfPlaces);
+                                      // print('******************************');
+                                      // print(valueChoose);
+                                      // print(listOfPlaces);
                                       return Container(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 10),

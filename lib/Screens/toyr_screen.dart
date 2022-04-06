@@ -422,7 +422,10 @@ class _toyrScreenState extends State<toyrScreen> {
                                   children: [
                                     GestureDetector(
                                       onTap: () => Navigator.pushNamed(
-                                          context, viewOnMap.Routename),
+                                          context, viewOnMap.Routename,
+                                          arguments: {
+                                            'listOfPlaces': placeArray
+                                          }),
                                       child: Stack(
                                         alignment: Alignment.center,
                                         children: [

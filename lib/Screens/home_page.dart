@@ -63,8 +63,25 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  final _scrollController = ScrollController();
+  var _isScrolled = false;
+
+  // void _listenToScrollChange() {
+  //   if (_scrollController.offset >= 100.0) {
+  //     setState(() {
+  //       _isScrolled = true;
+  //     });
+  //   } else {
+  //     setState(() {
+  //       _isScrolled = false;
+  //     });
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
+    // _scrollController.addListener(_listenToScrollChange);
+
     final sf = SharedPreferences.getInstance();
     sf.then(
       (value) {
@@ -223,212 +240,268 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             child: Scaffold(
-              body: FutureBuilder<QuerySnapshot>(
-                  future: FirebaseFirestore.instance
-                      .collection("packages")
-                      .orderBy('createdAt', descending: true)
-                      .get(),
-                  builder: (ctx, snapshot) {
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Text("Error 404"),
-                      );
-                    }
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    if (snapshot.data == null) {
-                      return Center(
-                        child: Text("just a Sec...."),
-                      );
-                    }
-                    if (_isLoadedFirstTime) {
-                      final document = snapshot.data!.docs;
-                      publicTOYR.clear();
-                      yourTOYR.clear();
-                      document.forEach((element) {
-                        if (element.get('isPublic')) {
-                          publicTOYR.add(TOYR(
-                              toyrId: element.id,
-                              name: element.get('packageName'),
-                              imgUrl: element.get('imgUrl'),
-                              createdAt: element.get('createdAt'),
-                              views: element.get('views')));
-                        }
-                      });
-                      publicTOYR.sort((t1, t2) => t2.views.compareTo(t1.views));
-                      document.forEach((element) {
-                        if (element.get('createdBy') ==
-                            FirebaseAuth.instance.currentUser!.email) {
-                          yourTOYR.add(TOYR(
-                              toyrId: element.id,
-                              name: element.get('packageName'),
-                              imgUrl: element.get('imgUrl'),
-                              createdAt: element.get('createdAt'),
-                              views: element.get('views')));
-                        }
-                      });
-                      _isLoadedFirstTime = false;
-                    }
+                body: FutureBuilder<QuerySnapshot>(
+                    future: FirebaseFirestore.instance
+                        .collection("packages")
+                        .orderBy('createdAt', descending: true)
+                        .get(),
+                    builder: (ctx, snapshot) {
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text("Error 404"),
+                        );
+                      }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (snapshot.data == null) {
+                        return Center(
+                          child: Text("just a Sec...."),
+                        );
+                      }
+                      if (_isLoadedFirstTime) {
+                        final document = snapshot.data!.docs;
+                        publicTOYR.clear();
+                        yourTOYR.clear();
+                        document.forEach((element) {
+                          if (element.get('isPublic')) {
+                            publicTOYR.add(TOYR(
+                                toyrId: element.id,
+                                name: element.get('packageName'),
+                                imgUrl: element.get('imgUrl'),
+                                createdAt: element.get('createdAt'),
+                                views: element.get('views')));
+                          }
+                        });
+                        publicTOYR
+                            .sort((t1, t2) => t2.views.compareTo(t1.views));
+                        document.forEach((element) {
+                          if (element.get('createdBy') ==
+                              FirebaseAuth.instance.currentUser!.email) {
+                            yourTOYR.add(TOYR(
+                                toyrId: element.id,
+                                name: element.get('packageName'),
+                                imgUrl: element.get('imgUrl'),
+                                createdAt: element.get('createdAt'),
+                                views: element.get('views')));
+                          }
+                        });
+                        _isLoadedFirstTime = false;
+                      }
 
-                    // print(publicTOYR);
-                    return Container(
-                      child: ListView(
-                        physics: BouncingScrollPhysics(),
-                        children: [
-                          const SizedBox(
-                            height: 40,
-                          ),
-                          Row(
-                            children: [
-                              Container(
-                                  margin: EdgeInsets.only(left: 15, right: 5),
-                                  decoration: BoxDecoration(
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.grey.shade400,
-                                          blurRadius: 7.0,
-                                          spreadRadius: 1.0,
-                                          offset: Offset(1.0, 1.0),
-                                        ),
-                                      ],
-                                      color: Colors.grey[200],
-                                      // color: Colors.white,
-                                      borderRadius: BorderRadius.circular(15)),
-                                  child: IconButton(
-                                    onPressed: _handleMenuButtonPressed,
-                                    icon: ValueListenableBuilder<
-                                        AdvancedDrawerValue>(
-                                      valueListenable:
-                                          _advancedDrawerController,
-                                      builder: (_, value, __) {
-                                        return AnimatedSwitcher(
-                                          duration: Duration(milliseconds: 250),
-                                          child: Icon(
-                                            value.visible
-                                                ? Icons.clear
-                                                : Icons.menu,
-                                            key: ValueKey<bool>(value.visible),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  )),
-                              Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
-                                child: Text(
-                                  "TOYR",
-                                  style: GoogleFonts.comfortaa(
-                                      fontSize: 36,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                                margin: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 5),
-                              ),
-                            ],
-                          ),
-                          Container(
-                              alignment: Alignment.center,
-                              margin:
-                                  EdgeInsets.only(top: 15, left: 10, right: 10),
-                              // padding: EdgeInsets.all(10),
-                              height: MediaQuery.of(context).size.height * 0.21,
-                              // decoration: BoxDecoration(color: Colors.grey[200]),
-                              child: GridView(
-                                  physics: BouncingScrollPhysics(),
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 2,
-                                          childAspectRatio: 2.5,
-                                          crossAxisSpacing: 10,
-                                          mainAxisSpacing: 10),
-                                  children: [
-                                    Container(
-                                      alignment: Alignment.center,
-                                      // height: 100,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          color: Colors.grey[200]),
-                                      child: ListTile(
-                                        onTap: () => Navigator.of(context)
-                                            .pushNamed(
-                                                createPackageScreen.Routename),
-                                        leading: Icon(Icons.add),
-                                        title: Text("Create Package"),
-                                      ),
-                                    ),
-                                    Container(
-                                      // height: 200,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          color: Colors.grey[200]),
-                                      child: ListTile(
-                                        leading: Icon(Icons.add),
-                                        title: Text("Create Package"),
-                                      ),
-                                    ),
-                                    Container(
-                                      // height: 80,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          color: Colors.grey[200]),
-                                      child: ListTile(
-                                        leading: Icon(Icons.add),
-                                        title: Text("Create Package"),
-                                      ),
-                                    ),
-                                    Container(
-                                      // height: 80,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          color: Colors.grey[200]),
-                                      child: ListTile(
-                                        leading: Icon(Icons.add),
-                                        title: Text("Create Package"),
-                                      ),
-                                    )
-                                  ])),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      // print(publicTOYR);
+                      return Container(
+                        child: ListView(
+                          controller: _scrollController,
+                          physics: BouncingScrollPhysics(),
+                          children: [
+                            const SizedBox(
+                              height: 40,
+                            ),
+                            Row(
                               children: [
-                                Text(
-                                  "YOUR TOYRS",
-                                  style: GoogleFonts.roboto(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
+                                Container(
+                                    margin: EdgeInsets.only(left: 15, right: 5),
+                                    decoration: BoxDecoration(
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.shade400,
+                                            blurRadius: 7.0,
+                                            spreadRadius: 1.0,
+                                            offset: Offset(1.0, 1.0),
+                                          ),
+                                        ],
+                                        color: Colors.grey[200],
+                                        // color: Colors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    child: IconButton(
+                                      onPressed: _handleMenuButtonPressed,
+                                      icon: ValueListenableBuilder<
+                                          AdvancedDrawerValue>(
+                                        valueListenable:
+                                            _advancedDrawerController,
+                                        builder: (_, value, __) {
+                                          return AnimatedSwitcher(
+                                            duration:
+                                                Duration(milliseconds: 250),
+                                            child: Icon(
+                                              value.visible
+                                                  ? Icons.clear
+                                                  : Icons.menu,
+                                              key:
+                                                  ValueKey<bool>(value.visible),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    )),
+                                Container(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Text(
+                                    "TOYR",
+                                    style: GoogleFonts.comfortaa(
+                                        fontSize: 36,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                  margin: const EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 5),
                                 ),
-                                TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pushNamed(
-                                          viewAllTOYRSScreen.Routename,
-                                          arguments: {
-                                            'listOfTOYR': yourTOYR,
-                                            'title': 'YOUR TOYRS',
-                                          });
-                                    },
-                                    child: Text('View All'))
                               ],
                             ),
-                            margin: const EdgeInsets.only(
-                                top: 20, left: 5, bottom: 10),
-                          ),
-                          if (yourTOYR.isEmpty)
                             Container(
-                              padding: EdgeInsets.symmetric(vertical: 30),
-                              child: Center(
-                                  child: Text(
-                                      "You haven't Created Any TOYRS Yet!!")),
+                                alignment: Alignment.center,
+                                margin: EdgeInsets.only(
+                                    top: 15, left: 10, right: 10),
+                                // padding: EdgeInsets.all(10),
+                                height:
+                                    MediaQuery.of(context).size.height * 0.21,
+                                // decoration: BoxDecoration(color: Colors.grey[200]),
+                                child: GridView(
+                                    physics: BouncingScrollPhysics(),
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 2,
+                                            childAspectRatio: 2.5,
+                                            crossAxisSpacing: 10,
+                                            mainAxisSpacing: 10),
+                                    children: [
+                                      Container(
+                                        alignment: Alignment.center,
+                                        // height: 100,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            color: Colors.grey[200]),
+                                        child: ListTile(
+                                          onTap: () => Navigator.of(context)
+                                              .pushNamed(createPackageScreen
+                                                  .Routename),
+                                          leading: Icon(Icons.add),
+                                          title: Text("Create Package"),
+                                        ),
+                                      ),
+                                      Container(
+                                        // height: 200,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            color: Colors.grey[200]),
+                                        child: ListTile(
+                                          leading: Icon(Icons.add),
+                                          title: Text("Create Package"),
+                                        ),
+                                      ),
+                                      Container(
+                                        // height: 80,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            color: Colors.grey[200]),
+                                        child: ListTile(
+                                          leading: Icon(Icons.add),
+                                          title: Text("Create Package"),
+                                        ),
+                                      ),
+                                      Container(
+                                        // height: 80,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            color: Colors.grey[200]),
+                                        child: ListTile(
+                                          leading: Icon(Icons.add),
+                                          title: Text("Create Package"),
+                                        ),
+                                      )
+                                    ])),
+                            Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "YOUR TOYRS",
+                                    style: GoogleFonts.roboto(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pushNamed(
+                                            viewAllTOYRSScreen.Routename,
+                                            arguments: {
+                                              'listOfTOYR': yourTOYR,
+                                              'title': 'YOUR TOYRS',
+                                            });
+                                      },
+                                      child: Text('View All'))
+                                ],
+                              ),
+                              margin: const EdgeInsets.only(
+                                  top: 20, left: 5, bottom: 10),
                             ),
-                          if (yourTOYR.isNotEmpty)
+                            if (yourTOYR.isEmpty)
+                              Container(
+                                padding: EdgeInsets.symmetric(vertical: 30),
+                                child: Center(
+                                    child: Text(
+                                        "You haven't Created Any TOYRS Yet!!")),
+                              ),
+                            if (yourTOYR.isNotEmpty)
+                              Container(
+                                height: MediaQuery.of(context).size.height *
+                                            0.565 <
+                                        395
+                                    ? MediaQuery.of(context).size.height * 0.5
+                                    : 390,
+                                width: MediaQuery.of(context).size.width,
+                                child: ListView.builder(
+                                  itemBuilder: (ctx, i) => Container(
+                                      width: 330,
+                                      child: ToyrWidget(
+                                        name: yourTOYR[i].name,
+                                        imgUrl: yourTOYR[i].imgUrl,
+                                        date: yourTOYR[i].createdAt,
+                                        id: yourTOYR[i].toyrId,
+                                      )),
+                                  itemCount: yourTOYR.length,
+                                  scrollDirection: Axis.horizontal,
+                                  physics: BouncingScrollPhysics(),
+                                ),
+                              ),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 8),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "TRENDING TOYRS",
+                                    style: GoogleFonts.roboto(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pushNamed(
+                                            viewAllTOYRSScreen.Routename,
+                                            arguments: {
+                                              'listOfTOYR': publicTOYR,
+                                              'title': 'PUBLIC TOYRS',
+                                            });
+                                      },
+                                      child: Text('View All'))
+                                ],
+                              ),
+                              margin:
+                                  EdgeInsets.only(top: 15, left: 5, bottom: 10),
+                            ),
                             Container(
                               height:
                                   MediaQuery.of(context).size.height * 0.565 <
@@ -438,120 +511,102 @@ class _HomeScreenState extends State<HomeScreen> {
                               width: MediaQuery.of(context).size.width,
                               child: ListView.builder(
                                 itemBuilder: (ctx, i) => Container(
-                                    width: 330,
-                                    child: ToyrWidget(
-                                      name: yourTOYR[i].name,
-                                      imgUrl: yourTOYR[i].imgUrl,
-                                      date: yourTOYR[i].createdAt,
-                                      id: yourTOYR[i].toyrId,
-                                    )),
-                                itemCount: yourTOYR.length,
+                                  width: 330,
+                                  child: ToyrWidget(
+                                    name: publicTOYR[i].name,
+                                    imgUrl: publicTOYR[i].imgUrl,
+                                    date: publicTOYR[i].createdAt,
+                                    id: publicTOYR[i].toyrId,
+                                  ),
+                                ),
+                                itemCount: publicTOYR.length,
                                 scrollDirection: Axis.horizontal,
                                 physics: BouncingScrollPhysics(),
                               ),
                             ),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "TRENDING TOYRS",
-                                  style: GoogleFonts.roboto(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pushNamed(
-                                          viewAllTOYRSScreen.Routename,
-                                          arguments: {
-                                            'listOfTOYR': publicTOYR,
-                                            'title': 'PUBLIC TOYRS',
-                                          });
-                                    },
-                                    child: Text('View All'))
-                              ],
-                            ),
-                            margin:
-                                EdgeInsets.only(top: 15, left: 5, bottom: 10),
-                          ),
-                          Container(
-                            height:
-                                MediaQuery.of(context).size.height * 0.565 < 395
-                                    ? MediaQuery.of(context).size.height * 0.5
-                                    : 390,
-                            width: MediaQuery.of(context).size.width,
-                            child: ListView.builder(
-                              itemBuilder: (ctx, i) => Container(
-                                width: 330,
-                                child: ToyrWidget(
-                                  name: publicTOYR[i].name,
-                                  imgUrl: publicTOYR[i].imgUrl,
-                                  date: publicTOYR[i].createdAt,
-                                  id: publicTOYR[i].toyrId,
-                                ),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 8),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "SHARED TOYRS",
+                                    style: GoogleFonts.roboto(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pushNamed(
+                                            viewAllTOYRSScreen.Routename,
+                                            arguments: {
+                                              'listOfTOYR': publicTOYR,
+                                              'title': 'SHARRED TOYRS',
+                                            });
+                                      },
+                                      child: Text('View All'))
+                                ],
                               ),
-                              itemCount: publicTOYR.length,
-                              scrollDirection: Axis.horizontal,
-                              physics: BouncingScrollPhysics(),
+                              margin:
+                                  EdgeInsets.only(top: 15, left: 5, bottom: 10),
                             ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "SHARED TOYRS",
-                                  style: GoogleFonts.roboto(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
+                            Container(
+                              height:
+                                  MediaQuery.of(context).size.height * 0.565 <
+                                          395
+                                      ? MediaQuery.of(context).size.height * 0.5
+                                      : 390,
+                              width: MediaQuery.of(context).size.width,
+                              child: ListView.builder(
+                                itemBuilder: (ctx, i) => Container(
+                                  width: 330,
+                                  child: ToyrWidget(
+                                    name: publicTOYR[i].name,
+                                    imgUrl: publicTOYR[i].imgUrl,
+                                    date: publicTOYR[i].createdAt,
+                                    id: publicTOYR[i].toyrId,
+                                  ),
                                 ),
-                                TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pushNamed(
-                                          viewAllTOYRSScreen.Routename,
-                                          arguments: {
-                                            'listOfTOYR': publicTOYR,
-                                            'title': 'SHARRED TOYRS',
-                                          });
-                                    },
-                                    child: Text('View All'))
-                              ],
-                            ),
-                            margin:
-                                EdgeInsets.only(top: 15, left: 5, bottom: 10),
-                          ),
-                          Container(
-                            height:
-                                MediaQuery.of(context).size.height * 0.565 < 395
-                                    ? MediaQuery.of(context).size.height * 0.5
-                                    : 390,
-                            width: MediaQuery.of(context).size.width,
-                            child: ListView.builder(
-                              itemBuilder: (ctx, i) => Container(
-                                width: 330,
-                                child: ToyrWidget(
-                                  name: publicTOYR[i].name,
-                                  imgUrl: publicTOYR[i].imgUrl,
-                                  date: publicTOYR[i].createdAt,
-                                  id: publicTOYR[i].toyrId,
-                                ),
+                                itemCount: publicTOYR.length,
+                                scrollDirection: Axis.horizontal,
+                                physics: BouncingScrollPhysics(),
                               ),
-                              itemCount: publicTOYR.length,
-                              scrollDirection: Axis.horizontal,
-                              physics: BouncingScrollPhysics(),
                             ),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          )
-                        ],
-                      ),
-                    );
-                  }),
-            ),
+                            SizedBox(
+                              height: 20,
+                            )
+                          ],
+                        ),
+                      );
+                    }),
+                floatingActionButton:
+                    StatefulBuilder(builder: (context, setStateForFB) {
+                  return FloatingActionButton.extended(
+                    extendedPadding: EdgeInsets.symmetric(horizontal: 10),
+                    isExtended: true,
+                    elevation: 15,
+                    focusElevation: 30,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    label: Text(
+                      'Create package',
+                    ),
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      Navigator.of(context)
+                          .pushNamed(createPackageScreen.Routename);
+                    },
+                    // child: AnimatedContainer(
+                    //   width: 100,
+                    //   curve: Curves.easeIn,
+                    //   duration: Duration(seconds: 1),
+                    //   child: Row(
+                    //     children: [ ],
+                    //   ),
+                    // ),
+                  );
+                })),
           );
         }
         return Scaffold(

@@ -18,33 +18,33 @@ class _choosePlacesState extends State<choosePlaces> {
   List<String>? listOfPlaces;
   String? city;
   _choosePlacesState(this.listOfPlaces, this.city);
-  final List<place> places = [
-    place(
-        id: "p1",
-        name: "Iskcon Temple",
-        imgUrl:
-            "https://lh5.googleusercontent.com/p/AF1QipMz9P5BrDQATamw27O9h08B9yt0l71m3v4IWzwj=w1080-k-no"),
-    place(
-        id: "p2",
-        name: "Gopi talav",
-        imgUrl:
-            "http://touristinformationcenter.net/wp-content/uploads/2021/09/gopi-4.jpg"),
-    place(
-        id: "p3",
-        name: "Dumas",
-        imgUrl:
-            "https://i.pinimg.com/736x/fe/8c/4b/fe8c4b4f17d110af461affb6f880f00a.jpg"),
-    place(
-        id: "p4",
-        name: "Woop",
-        imgUrl:
-            "https://pcbodiwala.com/storage/work_experience/5fc5dc150256a1606802453.jpeg"),
-    place(
-        id: "p5",
-        name: "Amazia Water Park",
-        imgUrl:
-            "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0d/eb/f6/9b/wave-pool.jpg?w=1200&h=1200&s=1")
-  ];
+  // final List<place> places = [
+  //   place(
+  //       id: "p1",
+  //       name: "Iskcon Temple",
+  //       imgUrl:
+  //           "https://lh5.googleusercontent.com/p/AF1QipMz9P5BrDQATamw27O9h08B9yt0l71m3v4IWzwj=w1080-k-no"),
+  //   place(
+  //       id: "p2",
+  //       name: "Gopi talav",
+  //       imgUrl:
+  //           "http://touristinformationcenter.net/wp-content/uploads/2021/09/gopi-4.jpg"),
+  //   place(
+  //       id: "p3",
+  //       name: "Dumas",
+  //       imgUrl:
+  //           "https://i.pinimg.com/736x/fe/8c/4b/fe8c4b4f17d110af461affb6f880f00a.jpg"),
+  //   place(
+  //       id: "p4",
+  //       name: "Woop",
+  //       imgUrl:
+  //           "https://pcbodiwala.com/storage/work_experience/5fc5dc150256a1606802453.jpeg"),
+  //   place(
+  //       id: "p5",
+  //       name: "Amazia Water Park",
+  //       imgUrl:
+  //           "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0d/eb/f6/9b/wave-pool.jpg?w=1200&h=1200&s=1")
+  // ];
   @override
   Widget build(BuildContext context) {
     print(listOfPlaces);
