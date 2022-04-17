@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -33,6 +34,7 @@ class _createPackageScreenState extends State<createPackageScreen> {
   List<dynamic>? finalSelectedPlaces = new List<dynamic>.empty(growable: true);
   bool _isLoading = false;
   bool _isPublic = false;
+  bool _isMemoryPublic = false;
   @override
   void _ImagePicker(File? image) {
     _pickedImage = image;
@@ -95,6 +97,7 @@ class _createPackageScreenState extends State<createPackageScreen> {
         'imgUrl': url,
         'city': valueChoose,
         'isPublic': _isPublic,
+        '_isMemoryPublic': _isMemoryPublic,
         'createdAt': Timestamp.now(),
         'views': 0,
         'createdBy': FirebaseAuth.instance.currentUser!.email,
@@ -106,6 +109,7 @@ class _createPackageScreenState extends State<createPackageScreen> {
         'imgUrl': url,
         'city': valueChoose,
         'isPublic': _isPublic,
+        'isMemoryPublic': _isMemoryPublic,
         'createdAt': Timestamp.now(),
         'views': 0,
         'createdBy': FirebaseAuth.instance.currentUser!.email,
@@ -149,17 +153,59 @@ class _createPackageScreenState extends State<createPackageScreen> {
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Center(
-                child: Text("just a Sec...."),
+                child: Row(
+                  children: [
+                    Spacer(),
+                    Text(
+                      "Loading",
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    AnimatedTextKit(animatedTexts: [
+                      TyperAnimatedText('...',
+                          textStyle: TextStyle(fontSize: 20),
+                          speed: Duration(milliseconds: 100))
+                    ]),
+                    Spacer(),
+                  ],
+                ),
               );
             }
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
-                child: CircularProgressIndicator(),
+                child: Row(
+                  children: [
+                    Spacer(),
+                    Text(
+                      "Loading",
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    AnimatedTextKit(animatedTexts: [
+                      TyperAnimatedText('...',
+                          textStyle: TextStyle(fontSize: 20),
+                          speed: Duration(milliseconds: 100))
+                    ]),
+                    Spacer(),
+                  ],
+                ),
               );
             }
             if (snapshot.data == null) {
               return Center(
-                child: Text("just a Sec...."),
+                child: Row(
+                  children: [
+                    Spacer(),
+                    Text(
+                      "Loading",
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    AnimatedTextKit(animatedTexts: [
+                      TyperAnimatedText('...',
+                          textStyle: TextStyle(fontSize: 20),
+                          speed: Duration(milliseconds: 100))
+                    ]),
+                    Spacer(),
+                  ],
+                ),
               );
             }
             //******************************************* */
@@ -190,22 +236,6 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                     color: Colors.white)),
                           ],
                         ),
-                        // Container(
-                        //   height:
-                        //       MediaQuery.of(context).size.height * 0.15 - 50,
-                        //   alignment: Alignment.centerLeft,
-                        //   padding: EdgeInsets.only(left: 10),
-                        //   child: Text("Create Package",
-                        //       style: GoogleFonts.lato(
-                        //           fontSize: 40,
-                        //           fontWeight: FontWeight.bold,
-                        //           color: Colors.white)),
-                        // ),
-                        // Divider(),
-                        // SizedBox(
-                        //   height: 20,
-                        // ),
-
                         Expanded(
                           child: Container(
                             // padding: EdgeInsets.only(top: 20),
@@ -422,151 +452,6 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                                             color:
                                                                 Colors.black38),
                                                       )
-                                                    // : Container(
-                                                    //     height: 500,
-                                                    //     child: GridView.builder(
-                                                    //         physics:
-                                                    //             BouncingScrollPhysics(),
-                                                    //         gridDelegate:
-                                                    //             SliverGridDelegateWithFixedCrossAxisCount(
-                                                    //                 crossAxisCount: 2,
-                                                    //                 childAspectRatio: 1,
-                                                    //                 crossAxisSpacing: 10,
-                                                    //                 mainAxisSpacing: 10),
-                                                    //         // itemCount: places.length,
-                                                    //         itemCount:
-                                                    //             finalSelectedPlaces!.length,
-                                                    //         itemBuilder: (ctx, index) {
-                                                    //           // return Container(
-                                                    //           //   width: 50,
-                                                    //           //   child: ClipRRect(
-                                                    //           //     borderRadius: BorderRadius.circular(15),
-                                                    //           //     child: Containr(
-                                                    //           //       child: Image.network(
-                                                    //           //         places[index].imgUrl,
-                                                    //           //         fit: BoxFit.fill,
-                                                    //           //       ),
-                                                    //           //     ),
-                                                    //           //   ),
-                                                    //           // );
-                                                    //           return FutureBuilder<
-                                                    //                   DocumentSnapshot>(
-                                                    //               future: FirebaseFirestore
-                                                    //                   .instance
-                                                    //                   .doc('places/' +
-                                                    //                       listOfPlaces[
-                                                    //                           index])
-                                                    //                   .get(),
-                                                    //               builder:
-                                                    //                   (context, snapshot) {
-                                                    //                 if (snapshot.hasError) {
-                                                    //                   return Center(
-                                                    //                     child: Text(
-                                                    //                         "just a Sec...."),
-                                                    //                   );
-                                                    //                 }
-                                                    //                 if (snapshot
-                                                    //                         .connectionState ==
-                                                    //                     ConnectionState
-                                                    //                         .waiting) {
-                                                    //                   return Center(
-                                                    //                     child:
-                                                    //                         CircularProgressIndicator(),
-                                                    //                   );
-                                                    //                 }
-                                                    //                 if (snapshot.data ==
-                                                    //                     null) {
-                                                    //                   return Center(
-                                                    //                     child: Text(
-                                                    //                         "just a Sec...."),
-                                                    //                   );
-                                                    //                 }
-                                                    //                 // firstTime = false;
-                                                    //                 final document =
-                                                    //                     snapshot.data;
-                                                    //                 return GestureDetector(
-                                                    //                   child: Container(
-                                                    //                     // padding: EdgeInsets.all(10),
-                                                    //                     child: Stack(
-                                                    //                       children: [
-                                                    //                         Container(
-                                                    //                             height: 200,
-                                                    //                             width: MediaQuery.of(
-                                                    //                                     context)
-                                                    //                                 .size
-                                                    //                                 .width,
-                                                    //                             // width: 200,
-                                                    //                             child:
-                                                    //                                 ClipRRect(
-                                                    //                               borderRadius:
-                                                    //                                   BorderRadius.circular(
-                                                    //                                       20),
-                                                    //                               child: Image
-                                                    //                                   .network(
-                                                    //                                 document!
-                                                    //                                     .get('imgUrl'),
-                                                    //                                 fit: BoxFit
-                                                    //                                     .cover,
-                                                    //                               ),
-                                                    //                             )),
-                                                    //                         Positioned(
-                                                    //                           // top: 150,
-                                                    //                           // left: 0,
-                                                    //                           bottom: 0,
-                                                    //                           child:
-                                                    //                               Container(
-                                                    //                             padding: EdgeInsets.only(
-                                                    //                                 left:
-                                                    //                                     10,
-                                                    //                                 bottom:
-                                                    //                                     10),
-                                                    //                             child:
-                                                    //                                 ClipRRect(
-                                                    //                               borderRadius: BorderRadius.only(
-                                                    //                                   bottomLeft: Radius.circular(
-                                                    //                                       8),
-                                                    //                                   bottomRight: Radius.circular(
-                                                    //                                       8),
-                                                    //                                   topLeft: Radius.circular(
-                                                    //                                       8),
-                                                    //                                   topRight:
-                                                    //                                       Radius.circular(8)),
-                                                    //                               child: Container(
-                                                    //                                   // width: MediaQuery.of(context).size.width,
-                                                    //                                   // width: 80,
-                                                    //                                   margin: EdgeInsets.only(left: 10, right: 10, bottom: 5, top: 5),
-                                                    //                                   child: BackdropFilter(
-                                                    //                                     filter:
-                                                    //                                         ImageFilter.blur(sigmaX: 19, sigmaY: 19),
-                                                    //                                     child:
-                                                    //                                         Row(
-                                                    //                                       children: [
-                                                    //                                         // Container(
-                                                    //                                         //   child: Icon(
-                                                    //                                         //     Icons.location_on_outlined,
-                                                    //                                         //     color: Colors.white,
-                                                    //                                         //   ),
-                                                    //                                         // ),
-                                                    //                                         // SizedBox(
-                                                    //                                         //   width: 3,
-                                                    //                                         // ),
-                                                    //                                         Text(
-                                                    //                                           document.get('placeName'),
-                                                    //                                           style: GoogleFonts.poppins(fontSize: 20, color: Colors.white, fontWeight: FontWeight.w500),
-                                                    //                                         ),
-                                                    //                                       ],
-                                                    //                                     ),
-                                                    //                                   )),
-                                                    //                             ),
-                                                    //                           ),
-                                                    //                         ),
-                                                    //                       ],
-                                                    //                     ),
-                                                    //                   ),
-                                                    //                 );
-                                                    //               });
-                                                    //         }),
-                                                    //   ),
                                                     : Container(
                                                         height: 220 *
                                                             finalSelectedPlaces!
@@ -715,17 +600,53 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                                                                           builder: (context, snapshot) {
                                                                                             if (snapshot.hasError && firstTime) {
                                                                                               return Center(
-                                                                                                child: Text("just a Sec...."),
+                                                                                                child: Row(
+                                                                                                  children: [
+                                                                                                    Spacer(),
+                                                                                                    Text(
+                                                                                                      "Loading",
+                                                                                                      style: TextStyle(fontSize: 20),
+                                                                                                    ),
+                                                                                                    AnimatedTextKit(animatedTexts: [
+                                                                                                      TyperAnimatedText('...', textStyle: TextStyle(fontSize: 20), speed: Duration(milliseconds: 100))
+                                                                                                    ]),
+                                                                                                    Spacer(),
+                                                                                                  ],
+                                                                                                ),
                                                                                               );
                                                                                             }
                                                                                             if (snapshot.connectionState == ConnectionState.waiting && firstTime) {
                                                                                               return Center(
-                                                                                                child: CircularProgressIndicator(),
+                                                                                                child: Row(
+                                                                                                  children: [
+                                                                                                    Spacer(),
+                                                                                                    Text(
+                                                                                                      "Loading",
+                                                                                                      style: TextStyle(fontSize: 20),
+                                                                                                    ),
+                                                                                                    AnimatedTextKit(animatedTexts: [
+                                                                                                      TyperAnimatedText('...', textStyle: TextStyle(fontSize: 20), speed: Duration(milliseconds: 100))
+                                                                                                    ]),
+                                                                                                    Spacer(),
+                                                                                                  ],
+                                                                                                ),
                                                                                               );
                                                                                             }
                                                                                             if (snapshot.data == null) {
                                                                                               return Center(
-                                                                                                child: Text("just a Sec...."),
+                                                                                                child: Row(
+                                                                                                  children: [
+                                                                                                    Spacer(),
+                                                                                                    Text(
+                                                                                                      "Loading",
+                                                                                                      style: TextStyle(fontSize: 20),
+                                                                                                    ),
+                                                                                                    AnimatedTextKit(animatedTexts: [
+                                                                                                      TyperAnimatedText('...', textStyle: TextStyle(fontSize: 20), speed: Duration(milliseconds: 100))
+                                                                                                    ]),
+                                                                                                    Spacer(),
+                                                                                                  ],
+                                                                                                ),
                                                                                               );
                                                                                             }
                                                                                             firstTime = false;
@@ -882,40 +803,99 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                     }),
                                     StatefulBuilder(
                                         builder: (context, setStateFul) {
-                                      return Container(
-                                        padding: EdgeInsets.only(
-                                            left: 15, right: 15),
-                                        alignment: Alignment.centerLeft,
-                                        child: Row(
-                                            // mainAxisAlignment:
-                                            //     MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                'Set Public',
-                                                style: TextStyle(fontSize: 20),
-                                              ),
-                                              SizedBox(
-                                                width: 10,
-                                              ),
-                                              Container(
-                                                padding: EdgeInsets.all(5),
-                                                margin: EdgeInsets.all(10),
-                                                child: FlutterSwitch(
-                                                    showOnOff: true,
-                                                    activeText: 'yes',
-                                                    inactiveText: 'no',
-                                                    activeColor: Colors
-                                                        .deepPurple.shade400,
-                                                    value: _isPublic,
-                                                    onToggle: (onToggle) {
-                                                      setStateFul(() {
-                                                        _isPublic = onToggle;
-                                                      });
-                                                    }),
-                                              ),
-                                            ]),
+                                      return Column(
+                                        children: [
+                                          Container(
+                                            padding: EdgeInsets.only(
+                                                left: 15, right: 15),
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Set Public',
+                                                    style:
+                                                        TextStyle(fontSize: 20),
+                                                  ),
+                                                  // SizedBox(
+                                                  //   width: 10,
+                                                  // ),
+                                                  Container(
+                                                    padding: EdgeInsets.all(5),
+                                                    margin: EdgeInsets.all(10),
+                                                    child: FlutterSwitch(
+                                                        showOnOff: true,
+                                                        activeText: 'yes',
+                                                        inactiveText: 'no',
+                                                        activeColor: Colors
+                                                            .deepPurple
+                                                            .shade400,
+                                                        value: _isPublic,
+                                                        onToggle: (onToggle) {
+                                                          setStateFul(() {
+                                                            if (!onToggle) {
+                                                              _isMemoryPublic =
+                                                                  false;
+                                                            }
+                                                            _isPublic =
+                                                                onToggle;
+                                                          });
+                                                        }),
+                                                  ),
+                                                ]),
+                                          ),
+                                          Container(
+                                            padding: EdgeInsets.only(
+                                                left: 15, right: 15),
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Set Memories Public',
+                                                    style:
+                                                        TextStyle(fontSize: 20),
+                                                  ),
+                                                  // SizedBox(
+                                                  //   width: 10,
+                                                  // ),
+                                                  Container(
+                                                    padding: EdgeInsets.all(5),
+                                                    margin: EdgeInsets.all(10),
+                                                    child: FlutterSwitch(
+                                                        disabled: !_isPublic,
+                                                        showOnOff: true,
+                                                        activeText: 'yes',
+                                                        inactiveText: 'no',
+                                                        activeColor: Colors
+                                                            .deepPurple
+                                                            .shade400,
+                                                        value: _isMemoryPublic,
+                                                        onToggle: (onToggle) {
+                                                          if (_isPublic) {
+                                                            setStateFul(() {
+                                                              _isMemoryPublic =
+                                                                  onToggle;
+                                                            });
+                                                          }
+                                                        }),
+                                                  ),
+                                                ]),
+                                          )
+                                        ],
                                       );
                                     }),
+                                    // SizedBox(
+                                    //   height: 15,
+                                    // ),
+                                    // StatefulBuilder(
+                                    //     builder: (context, setStateFul) {
+                                    //   return
+                                    // }),
                                     SizedBox(
                                       height: 15,
                                     ),

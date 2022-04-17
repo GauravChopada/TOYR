@@ -34,6 +34,7 @@ class _updatePackageScreenState extends State<updatePackageScreen> {
   List<dynamic>? finalSelectedPlaces = new List<dynamic>.empty(growable: true);
   bool _isLoading = false;
   bool _isPublic = false;
+  bool _isMemoryPublic = false;
   bool _isFirstTimeLoaded = true;
   @override
   void _ImagePicker(File? image) {
@@ -63,9 +64,12 @@ class _updatePackageScreenState extends State<updatePackageScreen> {
     final imgUrl = arguments['imgUrl'];
     final _argCity = arguments['city'];
     final isPublic = arguments['isPublic'];
+    final isMemoryPublic = arguments['isMemoryPublic'];
+
     // valueChoose = _argCity;
     if (_isFirstTimeLoaded) {
       _isPublic = isPublic;
+      _isMemoryPublic = isMemoryPublic;
       // valueChoose = _argCity;
       _isFirstTimeLoaded = false;
     }
@@ -138,6 +142,7 @@ class _updatePackageScreenState extends State<updatePackageScreen> {
           'imgUrl': url,
           'city': valueChoose,
           'isPublic': _isPublic,
+          'isMemoryPublic': _isMemoryPublic,
           'places': FieldValue.arrayUnion(finalSelectedPlaces!)
         });
 
@@ -819,40 +824,128 @@ class _updatePackageScreenState extends State<updatePackageScreen> {
                                       );
                                     }),
                                     // -------------------------
+                                    // StatefulBuilder(
+                                    //     builder: (context, setStateFul) {
+                                    //   return Container(
+                                    //     padding: EdgeInsets.only(
+                                    //         left: 15, right: 15),
+                                    //     alignment: Alignment.centerLeft,
+                                    //     child: Row(
+                                    //         // mainAxisAlignment:
+                                    //         //     MainAxisAlignment.spaceBetween,
+                                    //         children: [
+                                    //           Text(
+                                    //             'Set Public',
+                                    //             style: TextStyle(fontSize: 20),
+                                    //           ),
+                                    //           SizedBox(
+                                    //             width: 10,
+                                    //           ),
+                                    //           Container(
+                                    //             padding: EdgeInsets.all(5),
+                                    //             margin: EdgeInsets.all(10),
+                                    //             child: FlutterSwitch(
+                                    //                 showOnOff: true,
+                                    //                 activeText: 'yes',
+                                    //                 inactiveText: 'no',
+                                    //                 activeColor: Colors
+                                    //                     .deepPurple.shade400,
+                                    //                 value: _isPublic,
+                                    //                 onToggle: (onToggle) {
+                                    //                   setStateFul(() {
+                                    //                     _isPublic = onToggle;
+                                    //                   });
+                                    //                 }),
+                                    //           ),
+                                    //         ]),
+                                    //   );
+                                    // }),
                                     StatefulBuilder(
                                         builder: (context, setStateFul) {
-                                      return Container(
-                                        padding: EdgeInsets.only(
-                                            left: 15, right: 15),
-                                        alignment: Alignment.centerLeft,
-                                        child: Row(
-                                            // mainAxisAlignment:
-                                            //     MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                'Set Public',
-                                                style: TextStyle(fontSize: 20),
-                                              ),
-                                              SizedBox(
-                                                width: 10,
-                                              ),
-                                              Container(
-                                                padding: EdgeInsets.all(5),
-                                                margin: EdgeInsets.all(10),
-                                                child: FlutterSwitch(
-                                                    showOnOff: true,
-                                                    activeText: 'yes',
-                                                    inactiveText: 'no',
-                                                    activeColor: Colors
-                                                        .deepPurple.shade400,
-                                                    value: _isPublic,
-                                                    onToggle: (onToggle) {
-                                                      setStateFul(() {
-                                                        _isPublic = onToggle;
-                                                      });
-                                                    }),
-                                              ),
-                                            ]),
+                                      return Column(
+                                        children: [
+                                          Container(
+                                            padding: EdgeInsets.only(
+                                                left: 15, right: 15),
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Set Public',
+                                                    style:
+                                                        TextStyle(fontSize: 20),
+                                                  ),
+                                                  // SizedBox(
+                                                  //   width: 10,
+                                                  // ),
+                                                  Container(
+                                                    padding: EdgeInsets.all(5),
+                                                    margin: EdgeInsets.all(10),
+                                                    child: FlutterSwitch(
+                                                        showOnOff: true,
+                                                        activeText: 'yes',
+                                                        inactiveText: 'no',
+                                                        activeColor: Colors
+                                                            .deepPurple
+                                                            .shade400,
+                                                        value: _isPublic,
+                                                        onToggle: (onToggle) {
+                                                          setStateFul(() {
+                                                            if (!onToggle) {
+                                                              _isMemoryPublic =
+                                                                  false;
+                                                            }
+                                                            _isPublic =
+                                                                onToggle;
+                                                          });
+                                                        }),
+                                                  ),
+                                                ]),
+                                          ),
+                                          Container(
+                                            padding: EdgeInsets.only(
+                                                left: 15, right: 15),
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Set Memories Public',
+                                                    style:
+                                                        TextStyle(fontSize: 20),
+                                                  ),
+                                                  // SizedBox(
+                                                  //   width: 10,
+                                                  // ),
+                                                  Container(
+                                                    padding: EdgeInsets.all(5),
+                                                    margin: EdgeInsets.all(10),
+                                                    child: FlutterSwitch(
+                                                        disabled: !_isPublic,
+                                                        showOnOff: true,
+                                                        activeText: 'yes',
+                                                        inactiveText: 'no',
+                                                        activeColor: Colors
+                                                            .deepPurple
+                                                            .shade400,
+                                                        value: _isMemoryPublic,
+                                                        onToggle: (onToggle) {
+                                                          if (_isPublic) {
+                                                            setStateFul(() {
+                                                              _isMemoryPublic =
+                                                                  onToggle;
+                                                            });
+                                                          }
+                                                        }),
+                                                  ),
+                                                ]),
+                                          )
+                                        ],
                                       );
                                     }),
                                     SizedBox(

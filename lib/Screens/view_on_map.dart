@@ -29,9 +29,6 @@ class _viewOnMapState extends State<viewOnMap> {
 
   List<LatLng> latlngSegment1 = List<LatLng>.empty(growable: true);
   static LatLng _lat1 = LatLng(21.08550199445179, 72.70920026024869);
-  static LatLng _lat2 = LatLng(21.188843384298124, 72.82977588559417);
-  static LatLng _lat3 = LatLng(21.11963199889238, 72.73610719750813);
-  static LatLng _lat4 = LatLng(21.149423900440055, 72.75761512430374);
 
   LatLng _lastMapPosition = _lat1;
 
@@ -75,13 +72,6 @@ class _viewOnMapState extends State<viewOnMap> {
   @override
   void initState() {
     super.initState();
-    //line segment 1
-    // latlngSegment1.add(_lat1);
-    // latlngSegment1.add(_lat2);
-    // latlngSegment1.add(_lat3);
-    // latlngSegment1.add(_lat4);
-    // latlngSegment1.add(LatLng(21.08550199445179, 72.70920026024869));
-    // print(latlngSegment1);
   }
 
   List<int> data = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
@@ -91,10 +81,6 @@ class _viewOnMapState extends State<viewOnMap> {
         "https://www.google.com/maps/search/?api=1&query=$lat,$long";
 
     await launch(gMapUrl);
-    // if (await canLaunch(gMapUrl)) {
-    // } else {
-    //   throw 'Could not open the Map';
-    // }
   }
 
   Widget _buildItemList(BuildContext context, int index) {
@@ -187,6 +173,7 @@ class _viewOnMapState extends State<viewOnMap> {
 
   bool _isLoading = true;
   bool _isFirstTimeLoaded = true;
+  bool _isFirstTimeLoadedLoop = true;
 
   @override
   Widget build(BuildContext context) {
@@ -196,28 +183,55 @@ class _viewOnMapState extends State<viewOnMap> {
     if (_isFirstTimeLoaded) {
       setState(() {
         _listOfPlaces.forEach(
-          (element) async {
-            final document = await FirebaseFirestore.instance
-                .collection('places')
-                .doc(element)
-                .get();
+          (el) async {
+            if (_isFirstTimeLoadedLoop) {
+              _isFirstTimeLoadedLoop = false;
+              for (dynamic element in _listOfPlaces) {
+                final document = await FirebaseFirestore.instance
+                    .collection('places')
+                    .doc(element)
+                    .get();
 
-            final GeoPoint geoPoint = document.get('location');
-            final LatLng _pos =
-                new LatLng(geoPoint.latitude, geoPoint.longitude);
+                final GeoPoint geoPoint = document.get('location');
+                final LatLng _pos =
+                    new LatLng(geoPoint.latitude, geoPoint.longitude);
 
-            _places.add(new place(
-                id: document.id,
-                name: document.get('placeName'),
-                imgUrl: document.get('imgUrl'),
-                city: document.get('city'),
-                pos: _pos));
+                _places.add(new place(
+                    id: document.id,
+                    name: document.get('placeName'),
+                    imgUrl: document.get('imgUrl'),
+                    city: document.get('city'),
+                    pos: _pos));
+              }
+            }
+
             if (_places.length == _listOfPlaces.length) {
               setState(() {
                 _isFirstTimeLoaded = false;
                 _isLoading = false;
               });
             }
+            // final document = await FirebaseFirestore.instance
+            //     .collection('places')
+            //     .doc(element)
+            //     .get();
+
+            // final GeoPoint geoPoint = document.get('location');
+            // final LatLng _pos =
+            //     new LatLng(geoPoint.latitude, geoPoint.longitude);
+
+            // _places.add(new place(
+            //     id: document.id,
+            //     name: document.get('placeName'),
+            //     imgUrl: document.get('imgUrl'),
+            //     city: document.get('city'),
+            //     pos: _pos));
+            // if (_places.length == _listOfPlaces.length) {
+            //   setState(() {
+            //     _isFirstTimeLoaded = false;
+            //     _isLoading = false;
+            //   });
+            // }
           },
         );
       });
@@ -381,7 +395,10 @@ class _viewOnMapState extends State<viewOnMap> {
     setState(() {
       controller = controllerParam;
       var index = 1;
+
       _places.forEach((element) {
+        print("000");
+        print(element.name);
         _markers.add(Marker(
           markerId: MarkerId(element.id),
           position: element.pos,
@@ -404,7 +421,7 @@ class _viewOnMapState extends State<viewOnMap> {
           width: 5,
           color: Color.fromARGB(255, 145, 95, 232),
           startCap: Cap.roundCap,
-          geodesic: true,
+          // geodesic: true,
           endCap: Cap.roundCap
           // patterns: [PatternItem.dash(10), PatternItem.gap(10)],
           ));

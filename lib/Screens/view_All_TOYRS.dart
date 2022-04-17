@@ -127,11 +127,6 @@ class _viewAllTOYRSScreenState extends State<viewAllTOYRSScreen> {
                     title: Text('Go Back'),
                   ),
                   ListTile(
-                    onTap: () {},
-                    leading: Icon(Icons.settings),
-                    title: Text('Settings'),
-                  ),
-                  ListTile(
                     onTap: () {
                       FirebaseAuth.instance.signOut();
                       var sf = SharedPreferences.getInstance();
@@ -146,18 +141,6 @@ class _viewAllTOYRSScreenState extends State<viewAllTOYRSScreen> {
                     title: Text('LogOut'),
                   ),
                   Spacer(),
-                  DefaultTextStyle(
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white54,
-                    ),
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 16.0,
-                      ),
-                      child: Text('Terms of Service | Privacy Policy'),
-                    ),
-                  ),
                 ],
               ),
             ),

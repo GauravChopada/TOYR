@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:toyr2/Screens/home_page.dart';
 import 'package:toyr2/Screens/memory_Screen.dart';
 import 'package:toyr2/Screens/update_Package.dart';
@@ -108,7 +109,6 @@ class _toyrScreenState extends State<toyrScreen> {
       });
     }
     Future<void> _toggleFavourite(Function setStateFul) async {
-      // final sf = await SharedPreferences.getInstance();
       setStateFul(() {
         _isFavouriteLoading = true;
       });
@@ -128,24 +128,14 @@ class _toyrScreenState extends State<toyrScreen> {
             .update({
           'listOfFavourites': FieldValue.arrayRemove(listOfFavourites),
         });
-        // await FirebaseFirestore.instance
-        //     .collection('users')
-        //     .doc(FirebaseAuth.instance.currentUser.uid)
-        //     .update({
-        //   'listOfFavourites': FieldValue.arrayUnion(listOfFavourites),
-        // });
+
         setStateFul(() {
           _isFavourite = false;
           _isFavouriteLoading = false;
         });
       } else {
         listOfFavourites.add(packageId);
-        // await FirebaseFirestore.instance
-        //     .collection('users')
-        //     .doc(FirebaseAuth.instance.currentUser.uid)
-        //     .update({
-        //   'listOfFavourites': FieldValue.arrayUnion(new List.empty()),
-        // });
+
         await FirebaseFirestore.instance
             .collection('users')
             .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -157,16 +147,6 @@ class _toyrScreenState extends State<toyrScreen> {
           _isFavouriteLoading = false;
         });
       }
-      // final listOfFavourites = sf.getStringList('listOfFavourites');
-      // if (listOfMemories.contains(packageId)) {
-      //   // final index = listOfMemories.indexOf(packageId);
-      //   listOfMemories.removeWhere((element) => element == packageId);
-      //   _isFavourite = false;
-      // } else {
-      //   _isFavourite = true;
-      //   listOfMemories.add(packageId);
-      // }
-      // sf.setStringList('listOfFavourites', listOfFavourites!);
     }
 
     return _isLoading
@@ -190,44 +170,35 @@ class _toyrScreenState extends State<toyrScreen> {
             )),
           )
         : Scaffold(
-            // body: CustomScrollView(
-            //   slivers: [
-            //     SliverAppBar(
-            //       expandedHeight: 300,
-            //       pinned: true,
-            //       flexibleSpace: FlexibleSpaceBar(
-            //         title: Container(
-
-            //           child: BackdropFilter(
-            //             child: Text("Surat"),
-            //             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            //           ),
-            //         ),
-            //         background: Image.network(
-            //           imgUrl,
-            //           fit: BoxFit.cover,
-            //         ),
-            //       ),
-            //     ),
-            //     SliverList(
-            //         delegate: SliverChildListDelegate([
-            //       SizedBox(
-            //         height: 2000,
-            //       )
-            //     ]))
-            //   ],
-            // ),
             body: FutureBuilder<DocumentSnapshot>(
                 future: _productRef.get(),
                 builder: (ctx, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
-                      child: Text("loading..."),
+                      child: Row(
+                        children: [
+                          Spacer(),
+                          Text(
+                            "Loading",
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          AnimatedTextKit(animatedTexts: [
+                            TyperAnimatedText('...',
+                                textStyle: TextStyle(fontSize: 20),
+                                speed: Duration(milliseconds: 300))
+                          ]),
+                          Spacer(),
+                        ],
+                      ),
                     );
                   }
                   final document = snapshot.data;
                   // print(document[0].get('createdAt'));
                   Timestamp createdAt = document?.get('createdAt');
+                  String createdBy = document?.get('createdBy');
+                  bool isMemoryPublic = document?.get('isMemoryPublic');
+                  bool isPublic = document?.get('isPublic');
+                  print(FirebaseAuth.instance.currentUser!.email);
                   String packageName = document?.get('packageName');
                   String imgUrl = document?.get('imgUrl');
                   String city = document?.get('city');
@@ -411,274 +382,372 @@ class _toyrScreenState extends State<toyrScreen> {
                                 fontSize: 20, fontWeight: FontWeight.w500),
                           ),
                         ),
-                        Container(
-                          child: SingleChildScrollView(
-                            physics: BouncingScrollPhysics(),
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Column(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () => Navigator.pushNamed(
-                                          context, viewOnMap.Routename,
-                                          arguments: {
-                                            'listOfPlaces': placeArray
-                                          }),
-                                      child: Stack(
-                                        alignment: Alignment.center,
+                        if (isPublic &&
+                            createdBy !=
+                                FirebaseAuth.instance.currentUser!.email)
+                          Container(
+                            child: SingleChildScrollView(
+                              physics: BouncingScrollPhysics(),
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
                                         children: [
-                                          Container(
-                                            margin: EdgeInsets.symmetric(
-                                                horizontal: 8),
-                                            padding: EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  width: 3, color: Colors.grey),
-                                              borderRadius:
-                                                  BorderRadius.circular(100),
-                                              color: Colors.white,
-                                            ),
-                                            child: Icon(
-                                              Icons.location_on,
-                                              // Icons.location_on,
-                                              size: 50,
-                                            ),
-                                          ),
-                                          Container(
-                                            margin: EdgeInsets.symmetric(
-                                                horizontal: 5),
-                                            padding: EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(100),
-                                              color: Colors.grey[300],
-                                            ),
-                                            child: Icon(
-                                              Icons.location_on,
-                                              size: 45,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 3,
-                                    ),
-                                    Container(
-                                      child: Text(
-                                        "View Map",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        _pickImage();
-                                      },
-                                      child: Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          Container(
-                                            margin: EdgeInsets.symmetric(
-                                                horizontal: 5),
-                                            padding: EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  width: 3, color: Colors.grey),
-                                              borderRadius:
-                                                  BorderRadius.circular(100),
-                                              color: Colors.white,
-                                            ),
-                                            child: Icon(
-                                              Icons.location_on,
-                                              size: 50,
-                                            ),
-                                          ),
-                                          Container(
-                                            margin: EdgeInsets.symmetric(
-                                                horizontal: 5),
-                                            padding: EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(100),
-                                              color: Colors.grey[300],
-                                            ),
-                                            child: Icon(
-                                              Icons.add_a_photo,
-                                              size: 45,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 3,
-                                    ),
-                                    Container(
-                                      child: Text(
-                                        "add memories",
-                                        style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.of(context).pushNamed(
-                                            updatePackageScreen.Routename,
-                                            arguments: {
-                                              'packageName': packageName,
-                                              'imgUrl': imgUrl,
-                                              'placeArray': placeArray,
-                                              'city': city,
-                                              'id': document!.id,
-                                              'isPublic':
-                                                  document.get('isPublic')
-                                            });
-                                      },
-                                      child: Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          Container(
-                                            margin: EdgeInsets.symmetric(
-                                                horizontal: 5),
-                                            padding: EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  width: 3, color: Colors.grey),
-                                              borderRadius:
-                                                  BorderRadius.circular(100),
-                                              color: Colors.white,
-                                            ),
-                                            child: Icon(
-                                              Icons.location_on,
-                                              size: 50,
-                                            ),
-                                          ),
-                                          Container(
-                                            margin: EdgeInsets.symmetric(
-                                                horizontal: 5),
-                                            padding: EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(100),
-                                              color: Colors.grey[300],
-                                            ),
-                                            child: Icon(
-                                              Icons.update_sharp,
-                                              size: 45,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 3,
-                                    ),
-                                    Container(
-                                      child: Text(
-                                        "Update",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        showDialog(
-                                            context: context,
-                                            builder: (ctx) {
-                                              return AlertDialog(
-                                                title: Text('Delete'),
-                                                content: Text(
-                                                    'Are you sure you want to delete this package ?'),
-                                                actions: [
-                                                  FlatButton(
-                                                      onPressed: () async {
-                                                        await FirebaseFirestore
-                                                            .instance
-                                                            .collection(
-                                                                'packages')
-                                                            .doc(document!.id)
-                                                            .delete();
-                                                        Navigator.of(context)
-                                                            .pushNamed('/');
-                                                      },
-                                                      child: Text('Delete')),
-                                                  FlatButton(
-                                                      onPressed: () {
-                                                        Navigator.of(ctx).pop();
-                                                      },
-                                                      child: Text('Cancel'))
+                                          GestureDetector(
+                                            onTap: () => Navigator.pushNamed(
+                                                context, viewOnMap.Routename,
+                                                arguments: {
+                                                  'listOfPlaces': placeArray
+                                                }),
+                                            child: Container(
+                                              margin: EdgeInsets.only(left: 10),
+                                              padding: EdgeInsets.all(15),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                color: Colors.grey[300],
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.location_on,
+                                                    size: 35,
+                                                  ),
+                                                  Text(
+                                                    "View On Map",
+                                                    style: TextStyle(
+                                                        fontSize: 15,
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                  ),
                                                 ],
-                                              );
-                                            });
-                                      },
-                                      child: Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          Container(
-                                            margin: EdgeInsets.symmetric(
-                                                horizontal: 5),
-                                            padding: EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  width: 3, color: Colors.grey),
-                                              borderRadius:
-                                                  BorderRadius.circular(100),
-                                              color: Colors.white,
-                                            ),
-                                            child: Icon(
-                                              Icons.delete_forever,
-                                              size: 50,
+                                              ),
                                             ),
                                           ),
-                                          Container(
-                                            margin: EdgeInsets.symmetric(
-                                                horizontal: 5),
-                                            padding: EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(100),
-                                              color: Colors.grey[300],
+                                          if (isMemoryPublic)
+                                            GestureDetector(
+                                              onTap: () {
+                                                _pickImage();
+                                              },
+                                              child: Container(
+                                                margin:
+                                                    EdgeInsets.only(left: 10),
+                                                padding: EdgeInsets.all(15),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  color: Colors.grey[300],
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.location_on,
+                                                      size: 35,
+                                                    ),
+                                                    Text(
+                                                      "Add Memories",
+                                                      style: TextStyle(
+                                                          fontSize: 15,
+                                                          fontWeight:
+                                                              FontWeight.w500),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                             ),
-                                            child: Icon(
-                                              Icons.delete_forever,
-                                              size: 45,
-                                            ),
-                                          ),
                                         ],
                                       ),
-                                    ),
-                                    SizedBox(
-                                      height: 3,
-                                    ),
-                                    Container(
-                                      child: Text(
-                                        "Delete",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ],
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
+                        if (!isPublic as bool ||
+                            createdBy ==
+                                FirebaseAuth.instance.currentUser!.email)
+                          Container(
+                            child: SingleChildScrollView(
+                              physics: BouncingScrollPhysics(),
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Column(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () => Navigator.pushNamed(
+                                            context, viewOnMap.Routename,
+                                            arguments: {
+                                              'listOfPlaces': placeArray
+                                            }),
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Container(
+                                              margin: EdgeInsets.symmetric(
+                                                  horizontal: 8),
+                                              padding: EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    width: 3,
+                                                    color: Colors.grey),
+                                                borderRadius:
+                                                    BorderRadius.circular(100),
+                                                color: Colors.white,
+                                              ),
+                                              child: Icon(
+                                                Icons.location_on,
+                                                // Icons.location_on,
+                                                size: 50,
+                                              ),
+                                            ),
+                                            Container(
+                                              margin: EdgeInsets.symmetric(
+                                                  horizontal: 5),
+                                              padding: EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(100),
+                                                color: Colors.grey[300],
+                                              ),
+                                              child: Icon(
+                                                Icons.location_on,
+                                                size: 45,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 3,
+                                      ),
+                                      Container(
+                                        child: Text(
+                                          "View Map",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          _pickImage();
+                                        },
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Container(
+                                              margin: EdgeInsets.symmetric(
+                                                  horizontal: 5),
+                                              padding: EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    width: 3,
+                                                    color: Colors.grey),
+                                                borderRadius:
+                                                    BorderRadius.circular(100),
+                                                color: Colors.white,
+                                              ),
+                                              child: Icon(
+                                                Icons.location_on,
+                                                size: 50,
+                                              ),
+                                            ),
+                                            Container(
+                                              margin: EdgeInsets.symmetric(
+                                                  horizontal: 5),
+                                              padding: EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(100),
+                                                color: Colors.grey[300],
+                                              ),
+                                              child: Icon(
+                                                Icons.add_a_photo,
+                                                size: 45,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 3,
+                                      ),
+                                      Container(
+                                        child: Text(
+                                          "add memories",
+                                          style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.of(context).pushNamed(
+                                              updatePackageScreen.Routename,
+                                              arguments: {
+                                                'packageName': packageName,
+                                                'imgUrl': imgUrl,
+                                                'placeArray': placeArray,
+                                                'city': city,
+                                                'id': document!.id,
+                                                'isPublic':
+                                                    document.get('isPublic'),
+                                                'isMemoryPublic': document
+                                                    .get('isMemoryPublic')
+                                              });
+                                        },
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Container(
+                                              margin: EdgeInsets.symmetric(
+                                                  horizontal: 5),
+                                              padding: EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    width: 3,
+                                                    color: Colors.grey),
+                                                borderRadius:
+                                                    BorderRadius.circular(100),
+                                                color: Colors.white,
+                                              ),
+                                              child: Icon(
+                                                Icons.location_on,
+                                                size: 50,
+                                              ),
+                                            ),
+                                            Container(
+                                              margin: EdgeInsets.symmetric(
+                                                  horizontal: 5),
+                                              padding: EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(100),
+                                                color: Colors.grey[300],
+                                              ),
+                                              child: Icon(
+                                                Icons.update_sharp,
+                                                size: 45,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 3,
+                                      ),
+                                      Container(
+                                        child: Text(
+                                          "Update",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  Column(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          showDialog(
+                                              context: context,
+                                              builder: (ctx) {
+                                                return AlertDialog(
+                                                  title: Text('Delete'),
+                                                  content: Text(
+                                                      'Are you sure you want to delete this package ?'),
+                                                  actions: [
+                                                    FlatButton(
+                                                        onPressed: () async {
+                                                          await FirebaseFirestore
+                                                              .instance
+                                                              .collection(
+                                                                  'packages')
+                                                              .doc(document!.id)
+                                                              .delete();
+                                                          Navigator.of(context)
+                                                              .pushNamed('/');
+                                                        },
+                                                        child: Text('Delete')),
+                                                    FlatButton(
+                                                        onPressed: () {
+                                                          Navigator.of(ctx)
+                                                              .pop();
+                                                        },
+                                                        child: Text('Cancel'))
+                                                  ],
+                                                );
+                                              });
+                                        },
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Container(
+                                              margin: EdgeInsets.symmetric(
+                                                  horizontal: 5),
+                                              padding: EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    width: 3,
+                                                    color: Colors.grey),
+                                                borderRadius:
+                                                    BorderRadius.circular(100),
+                                                color: Colors.white,
+                                              ),
+                                              child: Icon(
+                                                Icons.delete_forever,
+                                                size: 50,
+                                              ),
+                                            ),
+                                            Container(
+                                              margin: EdgeInsets.symmetric(
+                                                  horizontal: 5),
+                                              padding: EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(100),
+                                                color: Colors.grey[300],
+                                              ),
+                                              child: Icon(
+                                                Icons.delete_forever,
+                                                size: 45,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 3,
+                                      ),
+                                      Container(
+                                        child: Text(
+                                          "Delete",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         Container(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 15, vertical: 10),
@@ -738,84 +807,79 @@ class _toyrScreenState extends State<toyrScreen> {
                         SizedBox(
                           height: 15,
                         ),
-                        Container(
-                          padding: EdgeInsets.only(left: 15, bottom: 20),
-                          child: Text(
-                            "Memories",
-                            style: GoogleFonts.poppins(
-                                fontSize: 20, fontWeight: FontWeight.w500),
+                        if (isMemoryPublic as bool && isPublic as bool ||
+                            createdBy ==
+                                FirebaseAuth.instance.currentUser!.email)
+                          Container(
+                            padding: EdgeInsets.only(left: 15, bottom: 20),
+                            child: Text(
+                              "Memories",
+                              style: GoogleFonts.poppins(
+                                  fontSize: 20, fontWeight: FontWeight.w500),
+                            ),
                           ),
-                        ),
-                        Container(
-                          // margin: EdgeInsets.symmetric(horizontal: 10),
-                          decoration: BoxDecoration(
-                              // boxShadow: [
-                              //background color of box
-                              //   BoxShadow(
-                              //     color: Colors.black,
-                              //     blurRadius: 15.0, // soften the shadow
-                              //     spreadRadius: 3.0, //extend the shadow
-                              //     offset: Offset(
-                              //       0, // Move to right 10  horizontally
-                              //       15.0, // Move to bottom 10 Vertically
-                              //     ),
-                              //   )
-                              // ],
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(15),
-                                  topRight: Radius.circular(15))),
-                          padding:
-                              EdgeInsets.only(top: 20, left: 10, right: 10),
-                          width: MediaQuery.of(context).size.width,
-                          // height: 630,
-                          height: listOfMemories.length <= 2 ? 220 : 420,
-                          child: listOfMemories.isEmpty
-                              ? Center(
-                                  child: Text(
-                                    "No Memories Added Yet!!!",
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                )
-                              : GridView.builder(
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 2,
-                                          childAspectRatio: 1,
-                                          crossAxisSpacing: 10,
-                                          mainAxisSpacing: 10),
-                                  itemCount: listOfMemories.length < 4
-                                      ? listOfMemories.length
-                                      : 4,
-                                  itemBuilder: (ctx, index) {
-                                    return Container(
-                                      width:
-                                          MediaQuery.of(context).size.width / 3,
-                                      // decoration: BoxDecoration(
-                                      // borderRadius: BorderRadius.circular(15),
-                                      // border: Border.all(width: 2)),
-                                      // boxShadow: [
-                                      //   new BoxShadow(
-                                      //     color: Colors.black,
-                                      //     blurRadius: 20.0,
-                                      //   ),
-                                      // ]),
-                                      // height: 200,
+                        if (isMemoryPublic as bool && isPublic as bool ||
+                            createdBy ==
+                                FirebaseAuth.instance.currentUser!.email)
+                          Container(
+                            decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(15),
+                                    topRight: Radius.circular(15))),
+                            padding:
+                                EdgeInsets.only(top: 20, left: 10, right: 10),
+                            width: MediaQuery.of(context).size.width,
+                            // height: 630,
+                            height: listOfMemories.length <= 2 ? 220 : 420,
+                            child: listOfMemories.isEmpty
+                                ? Center(
+                                    child: Text(
+                                      "No Memories Added Yet!!!",
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w400),
+                                    ),
+                                  )
+                                : GridView.builder(
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 2,
+                                            childAspectRatio: 1,
+                                            crossAxisSpacing: 10,
+                                            mainAxisSpacing: 10),
+                                    itemCount: listOfMemories.length < 4
+                                        ? listOfMemories.length
+                                        : 4,
+                                    itemBuilder: (ctx, index) {
+                                      return Container(
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                3,
+                                        // decoration: BoxDecoration(
+                                        // borderRadius: BorderRadius.circular(15),
+                                        // border: Border.all(width: 2)),
+                                        // boxShadow: [
+                                        //   new BoxShadow(
+                                        //     color: Colors.black,
+                                        //     blurRadius: 20.0,
+                                        //   ),
+                                        // ]),
+                                        // height: 200,
 
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(15),
-                                        child: Container(
-                                          child: Image.network(
-                                            listOfMemories[index],
-                                            fit: BoxFit.fill,
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          child: Container(
+                                            child: Image.network(
+                                              listOfMemories[index],
+                                              fit: BoxFit.fill,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    );
-                                  }),
-                        ),
+                                      );
+                                    }),
+                          ),
                         if (listOfMemories.isNotEmpty)
                           Container(
                             color: Colors.grey[300],
@@ -834,10 +898,13 @@ class _toyrScreenState extends State<toyrScreen> {
                                 }),
                           ),
                         // Container(child: StaggeredGrid.count(crossAxisCount: crossAxisCount),),
-                        Container(
-                          height: 50,
-                          color: Colors.grey[300],
-                        )
+                        if (isMemoryPublic as bool && isPublic as bool ||
+                            createdBy ==
+                                FirebaseAuth.instance.currentUser!.email)
+                          Container(
+                            height: 50,
+                            color: Colors.grey[300],
+                          )
                       ],
                     ),
                   );

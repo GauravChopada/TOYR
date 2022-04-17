@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -129,11 +130,6 @@ class _favouritesScreenState extends State<favouritesScreen> {
                     title: Text('Go Back'),
                   ),
                   ListTile(
-                    onTap: () {},
-                    leading: Icon(Icons.settings),
-                    title: Text('Settings'),
-                  ),
-                  ListTile(
                     onTap: () {
                       FirebaseAuth.instance.signOut();
                       var sf = SharedPreferences.getInstance();
@@ -148,18 +144,6 @@ class _favouritesScreenState extends State<favouritesScreen> {
                     title: Text('LogOut'),
                   ),
                   Spacer(),
-                  DefaultTextStyle(
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white54,
-                    ),
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 16.0,
-                      ),
-                      child: Text('Terms of Service | Privacy Policy'),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -173,8 +157,22 @@ class _favouritesScreenState extends State<favouritesScreen> {
                     .get(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
+                    return Center(
+                      child: Row(
+                        children: [
+                          Spacer(),
+                          Text(
+                            "Loading",
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          AnimatedTextKit(animatedTexts: [
+                            TyperAnimatedText('...',
+                                textStyle: TextStyle(fontSize: 20),
+                                speed: Duration(milliseconds: 300))
+                          ]),
+                          Spacer(),
+                        ],
+                      ),
                     );
                   }
                   if (snapshot.hasError) {
@@ -185,8 +183,22 @@ class _favouritesScreenState extends State<favouritesScreen> {
 
                   if (snapshot.connectionState == ConnectionState.done) {
                     if (snapshot.data == null) {
-                      return const Center(
-                        child: Text("just a Sec...."),
+                      return Center(
+                        child: Row(
+                          children: [
+                            Spacer(),
+                            Text(
+                              "Loading",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            AnimatedTextKit(animatedTexts: [
+                              TyperAnimatedText('...',
+                                  textStyle: TextStyle(fontSize: 20),
+                                  speed: Duration(milliseconds: 300))
+                            ]),
+                            Spacer(),
+                          ],
+                        ),
                       );
                     }
                     final listOfFav =
@@ -206,14 +218,42 @@ class _favouritesScreenState extends State<favouritesScreen> {
                           if (snapshot2.connectionState ==
                               ConnectionState.waiting) {
                             return Center(
-                              child: CircularProgressIndicator(),
+                              child: Row(
+                                children: [
+                                  Spacer(),
+                                  Text(
+                                    "Loading",
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                  AnimatedTextKit(animatedTexts: [
+                                    TyperAnimatedText('...',
+                                        textStyle: TextStyle(fontSize: 20),
+                                        speed: Duration(milliseconds: 100))
+                                  ]),
+                                  Spacer(),
+                                ],
+                              ),
                             );
                           }
                           if (snapshot2.connectionState ==
                               ConnectionState.done) {
                             if (snapshot2.data == null) {
                               return Center(
-                                child: Text("just a Sec...."),
+                                child: Row(
+                                  children: [
+                                    Spacer(),
+                                    Text(
+                                      "Loading",
+                                      style: TextStyle(fontSize: 20),
+                                    ),
+                                    AnimatedTextKit(animatedTexts: [
+                                      TyperAnimatedText('...',
+                                          textStyle: TextStyle(fontSize: 20),
+                                          speed: Duration(milliseconds: 300))
+                                    ]),
+                                    Spacer(),
+                                  ],
+                                ),
                               );
                             }
                             if (_isFirstTimeLoaded2) {

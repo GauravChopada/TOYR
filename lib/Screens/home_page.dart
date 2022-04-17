@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,6 +28,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final List<TOYR> publicTOYR = [];
+  final List<TOYR> latestTOYR = [];
   final List<TOYR> yourTOYR = [];
 
   final _advancedDrawerController = AdvancedDrawerController();
@@ -152,6 +154,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       ListTile(
                         onTap: () {
                           Navigator.of(context)
+                              .pushNamed(createPackageScreen.Routename);
+                        },
+                        leading: Icon(Icons.add),
+                        title: Text('Create Package'),
+                      ),
+                      ListTile(
+                        onTap: () {
+                          Navigator.of(context)
                               .pushNamed(viewProfile.Routename);
                         },
                         leading: Icon(Icons.account_circle_rounded),
@@ -165,11 +175,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         leading: Icon(Icons.favorite),
                         title: Text('Favourites'),
-                      ),
-                      ListTile(
-                        onTap: () {},
-                        leading: Icon(Icons.settings),
-                        title: Text('Settings'),
                       ),
                       ListTile(
                         onTap: () {
@@ -186,18 +191,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: Text('LogOut'),
                       ),
                       Spacer(),
-                      DefaultTextStyle(
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white54,
-                        ),
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(
-                            vertical: 16.0,
-                          ),
-                          child: Text('Terms of Service | Privacy Policy'),
-                        ),
-                      ),
+                      // DefaultTextStyle(
+                      //   style: TextStyle(
+                      //     fontSize: 12,
+                      //     color: Colors.white54,
+                      //   ),
+                      //   child: Container(
+                      //     margin: const EdgeInsets.symmetric(
+                      //       vertical: 16.0,
+                      //     ),
+                      //     child: Text('Terms of Service | Privacy Policy'),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -219,8 +224,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Scaffold(
                       body: Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.black,
+                        child: Row(
+                          children: [
+                            Spacer(),
+                            Text(
+                              "Loading",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            AnimatedTextKit(animatedTexts: [
+                              TyperAnimatedText('...',
+                                  textStyle: TextStyle(fontSize: 20),
+                                  speed: Duration(milliseconds: 300))
+                            ]),
+                            Spacer(),
+                          ],
                         ),
                       ),
                     );
@@ -236,8 +253,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     final document = snapshot.data!.docs;
                     publicTOYR.clear();
                     yourTOYR.clear();
+                    latestTOYR.clear();
                     document.forEach((element) {
                       if (element.get('isPublic')) {
+                        latestTOYR.add(TOYR(
+                            toyrId: element.id,
+                            name: element.get('packageName'),
+                            imgUrl: element.get('imgUrl'),
+                            createdAt: element.get('createdAt'),
+                            views: element.get('views')));
                         publicTOYR.add(TOYR(
                             toyrId: element.id,
                             name: element.get('packageName'),
@@ -360,72 +384,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ],
                               ),
-                              // Container(
-                              //     alignment: Alignment.center,
-                              //     margin: EdgeInsets.only(
-                              //         top: 15, left: 10, right: 10),
-                              //     // padding: EdgeInsets.all(10),
-                              //     height:
-                              //         MediaQuery.of(context).size.height * 0.21,
-                              //     // decoration: BoxDecoration(color: Colors.grey[200]),
-                              //     child: GridView(
-                              //         physics: BouncingScrollPhysics(),
-                              //         gridDelegate:
-                              //             const SliverGridDelegateWithFixedCrossAxisCount(
-                              //                 crossAxisCount: 2,
-                              //                 childAspectRatio: 2.5,
-                              //                 crossAxisSpacing: 10,
-                              //                 mainAxisSpacing: 10),
-                              //         children: [
-                              //           Container(
-                              //             alignment: Alignment.center,
-                              //             // height: 100,
-                              //             decoration: BoxDecoration(
-                              //                 borderRadius:
-                              //                     BorderRadius.circular(15),
-                              //                 color: Colors.grey[200]),
-                              //             child: ListTile(
-                              //               onTap: () => Navigator.of(context)
-                              //                   .pushNamed(createPackageScreen
-                              //                       .Routename),
-                              //               leading: Icon(Icons.add),
-                              //               title: Text("Create Package"),
-                              //             ),
-                              //           ),
-                              //           Container(
-                              //             // height: 200,
-                              //             decoration: BoxDecoration(
-                              //                 borderRadius:
-                              //                     BorderRadius.circular(15),
-                              //                 color: Colors.grey[200]),
-                              //             child: ListTile(
-                              //               leading: Icon(Icons.add),
-                              //               title: Text("Create Package"),
-                              //             ),
-                              //           ),
-                              //           Container(
-                              //             // height: 80,
-                              //             decoration: BoxDecoration(
-                              //                 borderRadius:
-                              //                     BorderRadius.circular(15),
-                              //                 color: Colors.grey[200]),
-                              //             child: ListTile(
-                              //               leading: Icon(Icons.add),
-                              //               title: Text("Create Package"),
-                              //             ),
-                              //           ),
-                              //           Container(
-                              //             // height: 80,
-                              //             decoration: BoxDecoration(
-                              //                 borderRadius:
-                              //                     BorderRadius.circular(15),
-                              //                 color: Colors.grey[200]),
-                              //             child: ListTile(
-                              //               leading: Icon(Icons.add),
-                              //               title: Text("Create Package"),
-                              //             ),
-                              //           )
-                              //         ])),
                               Container(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 8),
@@ -547,7 +505,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      "SHARED TOYRS",
+                                      "LATEST TOYRS",
                                       style: GoogleFonts.roboto(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold),
@@ -557,8 +515,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           Navigator.of(context).pushNamed(
                                               viewAllTOYRSScreen.Routename,
                                               arguments: {
-                                                'listOfTOYR': publicTOYR,
-                                                'title': 'SHARRED TOYRS',
+                                                'listOfTOYR': latestTOYR,
+                                                'title': 'LATEST TOYRS',
                                               });
                                         },
                                         child: Text(
@@ -582,13 +540,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                   itemBuilder: (ctx, i) => Container(
                                     width: 330,
                                     child: ToyrWidget(
-                                      name: publicTOYR[i].name,
-                                      imgUrl: publicTOYR[i].imgUrl,
-                                      date: publicTOYR[i].createdAt,
-                                      id: publicTOYR[i].toyrId,
+                                      name: latestTOYR[i].name,
+                                      imgUrl: latestTOYR[i].imgUrl,
+                                      date: latestTOYR[i].createdAt,
+                                      id: latestTOYR[i].toyrId,
                                     ),
                                   ),
-                                  itemCount: publicTOYR.length,
+                                  itemCount: latestTOYR.length,
                                   scrollDirection: Axis.horizontal,
                                   physics: BouncingScrollPhysics(),
                                 ),
