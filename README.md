@@ -1,16 +1,45 @@
-# toyr2
+# TOYR (Travel On Your Rules)
 
-A new Flutter project.
+TOYR app is a FLUTTER project used to create personalized packages on users requirements. This app is aimed towards people who wants to go on trip but do not have proper direction or guidance. This app will make user’s tour experience more easy and reliable.
 
-## Getting Started
+## Product Features
 
-This project is a starting point for a Flutter application.
+•	Access to the TOYR app for the administration and the user is provided with individual login.
+•	Username will be individual user id and each set their own password.
+•	Only the administer can add or update the database containing the places and its details.
+•	User can only see places and can make their personalized tour package.
+•	User can see their tour routes on map in this app.
+•	User can see their past tour and save memories on this app.
 
-A few resources to get you started if this is your first Flutter project:
+## Technology used for development: 
+ 
+• Flutter
+• Firebase
+• Google map platform
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+## Flutter packages (source: pub.dev):
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+• firebase_core
+• firebase_auth
+• cloud_firestore
+• flutter_switch
+• google_maps_flutter
+• google_maps_routes
+• google_fonts
+• animated_text_kit
+• splash_screen_view
+• flutter_advanced_drawer
+• shared_preferences
+• scroll_snap_list
+• provider
+• url_launcher
+• liquid_pull_to_refresh
+• iconsax
+• smooth_page_indicator
+• image_picker
+• dio
+• flutter_polyline_points
+• firebase_storage
+• easy_image_viewer
+
+
