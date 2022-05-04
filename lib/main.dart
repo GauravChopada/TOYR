@@ -1,11 +1,10 @@
 import 'dart:async';
 
-// import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toyr2/Screens/Auth_Screen.dart';
 import 'package:toyr2/Screens/Log_In_Screen.dart';
 import 'Screens/home_page.dart';
@@ -19,17 +18,10 @@ import 'Providers/Auth.dart';
 import 'Screens/view_on_map.dart';
 import 'Screens/view_All_TOYRS.dart';
 import 'package:firebase_core/firebase_core.dart';
-// import 'package:page_transition/page_transition.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'Screens/favourites_Screen.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-// import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'Screens/forgot_pswd.dart';
 
 void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp(
-  //   options: DefaultFirebaseOptions.currentPlatform,
-  // );
   runApp(const MyApp());
 }
 
@@ -65,16 +57,16 @@ class _MyAppState extends State<MyApp> {
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     return MultiProvider(
         providers: [
           ChangeNotifierProvider.value(value: Auth()),
         ],
         child: Consumer<Auth>(builder: (ctx, auth, _) {
           return MaterialApp(
-            // home: AuthScreen(),
-            // home: HomeScreen(),
-            // home: currentPage,
-            // home: MapSample(),
             home: isFirstTimeLoaded
                 ? SplashScreenView(
                     navigateRoute: FutureBuilder(
@@ -141,7 +133,6 @@ class _MyAppState extends State<MyApp> {
                         body: Center(child: Text("initializing App....")),
                       );
                     }),
-
             theme: ThemeData(
               primaryColor: Colors.deepPurple,
               accentColor: Colors.black,
@@ -162,6 +153,8 @@ class _MyAppState extends State<MyApp> {
               viewAllTOYRSScreen.Routename: (context) => viewAllTOYRSScreen(),
               favouritesScreen.Routename: (context) => favouritesScreen(),
               viewOnMap.Routename: (context) => viewOnMap(),
+              forgotPasswordScreen.Routename: (context) =>
+                  forgotPasswordScreen(),
             },
           );
         }));

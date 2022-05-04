@@ -63,9 +63,6 @@ class _createPackageScreenState extends State<createPackageScreen> {
       return;
     }
     if (_pickedImage == null) {
-      // Scaffold.of(context).showSnackBar(SnackBar(
-      //     content: Text('Please select image properly'),
-      //     backgroundColor: Theme.of(context).errorColor)+);
       _showErrorDialog('Please select image properly');
       print('Please select image properly.');
       return;
@@ -140,8 +137,6 @@ class _createPackageScreenState extends State<createPackageScreen> {
       print(error.toString());
       _showErrorDialog(errormsg.toString());
     }
-    // submitAndAddUser(_authData['Email'].trim(), _authData['Password'].trim(),
-    //     '', authType == AuthType.Login, context);
   }
 
   Widget build(BuildContext context) {
@@ -208,7 +203,7 @@ class _createPackageScreenState extends State<createPackageScreen> {
                 ),
               );
             }
-            //******************************************* */
+
             return Stack(
               children: [
                 Container(
@@ -359,9 +354,7 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                           }
                                         }
                                       }
-                                      // print('******************************');
-                                      // print(valueChoose);
-                                      // print(listOfPlaces);
+
                                       return Container(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 10),
@@ -481,10 +474,6 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               10),
-                                                      // side: BorderSide(
-                                                      //     color: Colors.deepPurple,
-                                                      //     width: 1,
-                                                      //     style: BorderStyle.solid),
                                                     ),
                                                     onPressed: () {
                                                       setStateFul(() {
@@ -541,10 +530,6 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                                                       (context,
                                                                           state) {
                                                                 return GestureDetector(
-                                                                  // child: choosePlaces(
-                                                                  //     listOfPlaces:
-                                                                  //         listOfPlaces,
-                                                                  //     city: valueChoose),
                                                                   child:
                                                                       Container(
                                                                     child:
@@ -580,21 +565,8 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                                                                 child: GridView.builder(
                                                                                     physics: BouncingScrollPhysics(),
                                                                                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1, crossAxisSpacing: 10, mainAxisSpacing: 10),
-                                                                                    // itemCount: places.length,
                                                                                     itemCount: listOfPlaces.length,
                                                                                     itemBuilder: (ctx, index) {
-                                                                                      // return Container(
-                                                                                      //   width: 50,
-                                                                                      //   child: ClipRRect(
-                                                                                      //     borderRadius: BorderRadius.circular(15),
-                                                                                      //     child: Containr(
-                                                                                      //       child: Image.network(
-                                                                                      //         places[index].imgUrl,
-                                                                                      //         fit: BoxFit.fill,
-                                                                                      //       ),
-                                                                                      //     ),
-                                                                                      //   ),
-                                                                                      // );
                                                                                       return FutureBuilder<DocumentSnapshot>(
                                                                                           future: FirebaseFirestore.instance.doc('places/' + listOfPlaces[index]).get(),
                                                                                           builder: (context, snapshot) {
@@ -683,30 +655,17 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                                                                                           ),
                                                                                                         )),
                                                                                                     Positioned(
-                                                                                                      // top: 150,
-                                                                                                      // left: 0,
                                                                                                       bottom: 0,
                                                                                                       child: Container(
                                                                                                         padding: EdgeInsets.only(left: 10, bottom: 10),
                                                                                                         child: ClipRRect(
                                                                                                           borderRadius: BorderRadius.only(bottomLeft: Radius.circular(8), bottomRight: Radius.circular(8), topLeft: Radius.circular(8), topRight: Radius.circular(8)),
                                                                                                           child: Container(
-                                                                                                              // width: MediaQuery.of(context).size.width,
-                                                                                                              // width: 80,
                                                                                                               margin: EdgeInsets.only(left: 10, right: 10, bottom: 5, top: 5),
                                                                                                               child: BackdropFilter(
                                                                                                                 filter: ImageFilter.blur(sigmaX: 19, sigmaY: 19),
                                                                                                                 child: Row(
                                                                                                                   children: [
-                                                                                                                    // Container(
-                                                                                                                    //   child: Icon(
-                                                                                                                    //     Icons.location_on_outlined,
-                                                                                                                    //     color: Colors.white,
-                                                                                                                    //   ),
-                                                                                                                    // ),
-                                                                                                                    // SizedBox(
-                                                                                                                    //   width: 3,
-                                                                                                                    // ),
                                                                                                                     Text(
                                                                                                                       document.get('placeName'),
                                                                                                                       style: GoogleFonts.poppins(fontSize: 20, color: Colors.white, fontWeight: FontWeight.w500),
@@ -732,13 +691,7 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                                                                                             : CircleAvatar(
                                                                                                                 radius: 13,
                                                                                                                 backgroundColor: Color.fromRGBO(128, 128, 128, 0.7),
-                                                                                                              )
-                                                                                                        // child: CircleAvatar(
-                                                                                                        //   radius: 13,
-                                                                                                        //   backgroundColor:
-                                                                                                        //       Color.fromRGBO(128, 128, 128, 0.7),
-                                                                                                        // )
-                                                                                                        )
+                                                                                                              ))
                                                                                                   ],
                                                                                                 ),
                                                                                               ),
@@ -758,10 +711,6 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                                                               textColor: Colors.white,
                                                                               shape: RoundedRectangleBorder(
                                                                                 borderRadius: BorderRadius.circular(10),
-                                                                                // side: BorderSide(
-                                                                                //     color: Colors.deepPurple,
-                                                                                //     width: 1,
-                                                                                //     style: BorderStyle.solid),
                                                                               ),
                                                                               child: Text("Select(" + selectedPlaces!.length.toString() + ")"),
                                                                               onPressed: () {
@@ -774,11 +723,7 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                                                       ],
                                                                     ),
                                                                   ),
-                                                                  onTap: () {
-                                                                    // setState(() {
-                                                                    //   if(selectedPlaces.contains())
-                                                                    // });
-                                                                  },
+                                                                  onTap: () {},
                                                                   behavior:
                                                                       HitTestBehavior
                                                                           .opaque,
@@ -889,19 +834,9 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                         ],
                                       );
                                     }),
-                                    // SizedBox(
-                                    //   height: 15,
-                                    // ),
-                                    // StatefulBuilder(
-                                    //     builder: (context, setStateFul) {
-                                    //   return
-                                    // }),
                                     SizedBox(
                                       height: 15,
                                     ),
-                                    // Switch(
-                                    //     value: true, onChanged: (onChanged) {}),
-                                    //-------------------------
                                     Container(
                                       padding:
                                           EdgeInsets.symmetric(horizontal: 20),
@@ -916,10 +851,6 @@ class _createPackageScreenState extends State<createPackageScreen> {
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius:
                                                       BorderRadius.circular(10),
-                                                  // side: BorderSide(
-                                                  //     color: Colors.deepPurple,
-                                                  //     width: 1,
-                                                  //     style: BorderStyle.solid),
                                                 ),
                                                 onPressed: () {
                                                   _saveForm();

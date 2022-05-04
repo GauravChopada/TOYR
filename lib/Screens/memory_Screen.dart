@@ -1,3 +1,4 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
@@ -105,9 +106,62 @@ class memoryScreen extends StatelessWidget {
                                                         BorderRadius.circular(
                                                             20),
                                                     color: Colors.white),
-                                                child: InteractiveViewer(
-                                                  child: Image.network(
-                                                      listOfMemories[index]),
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.end,
+                                                  children: [
+                                                    Expanded(
+                                                      child: Container(
+                                                        child:
+                                                            InteractiveViewer(
+                                                          child: Image.network(
+                                                              listOfMemories[
+                                                                  index]),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        Spacer(),
+                                                        InkWell(
+                                                          onTap: () {
+                                                            FirebaseStorage
+                                                                .instance
+                                                                .refFromURL(
+                                                                    listOfMemories[
+                                                                        index])
+                                                                .delete();
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          child: Container(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    right: 10,
+                                                                    bottom: 10),
+                                                            child: Row(
+                                                                children: const [
+                                                                  Icon(
+                                                                    Icons
+                                                                        .delete,
+                                                                    color: Colors
+                                                                        .red,
+                                                                  ),
+                                                                  Text(
+                                                                    'delete',
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .red),
+                                                                  )
+                                                                ]),
+                                                          ),
+                                                        ),
+                                                        Spacer(),
+                                                      ],
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
                                             ))),

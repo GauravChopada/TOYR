@@ -1,15 +1,15 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Widget/Image_Picker_Auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'forgot_pswd.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'Auth_Screen.dart';
 import 'dart:io';
-// import 'Auth_Screen.dart';
-
-// enum AuthType { Login, SignUp }
 
 class LogInScreen extends StatefulWidget {
   final _auth = FirebaseAuth.instance;
@@ -50,25 +50,26 @@ class _LogInScreenState extends State<LogInScreen> {
   }
 
   AuthType authType = AuthType.Login;
-  void _saveForm() async {
+
+  Future<void> _saveForm() async {
     FocusScope.of(context).unfocus();
 
     if (_pickedImage == null && authType != AuthType.Login) {
-      // Scaffold.of(context).showSnackBar(SnackBar(
-      //     content: Text('Please select image properly'),
-      //     backgroundColor: Theme.of(context).errorColor));
       _showErrorDialog('Please select image properly');
-      print('Please select image properly');
       return;
     }
+
     if (!_formkey.currentState!.validate()) {
       return;
     }
+
     setState(() {
       _isLoading = true;
     });
+
     _formkey.currentState!.save();
     UserCredential authresult;
+
     try {
       if (authType == AuthType.Login) {
         authresult = await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -84,16 +85,10 @@ class _LogInScreenState extends State<LogInScreen> {
         sp.setString('profileImgUrl', ff.get('imageUrl'));
         sp.setString('userName', ff.get('UserName'));
         sp.setStringList('listOfFavourites', new List.empty());
-        // authresult = await widget._auth.signInWithEmailAndPassword(
-        //     email: _authData['Email']!.trim(),
-        //     password: _authData['Password']!.trim());
       } else {
         authresult = await FirebaseAuth.instance.createUserWithEmailAndPassword(
             email: _authData['Email']!.trim(),
             password: _authData['Password']!.trim());
-        // authresult = await widget._auth.createUserWithEmailAndPassword(
-        //     email: _authData['Email']!.trim(),
-        //     password: _authData['Password']!.trim());
 
         var ref = FirebaseStorage.instance
             .ref()
@@ -103,11 +98,11 @@ class _LogInScreenState extends State<LogInScreen> {
         final _uploadTask = ref.putFile(_pickedImage!);
         var url = await (await _uploadTask).ref.getDownloadURL();
 
-        // var url = await ref.getDownloadURL();
         final sp = await SharedPreferences.getInstance();
         sp.setString('profileImgUrl', url);
         sp.setString('userName', _authData['UserName'].toString());
         sp.setStringList('listOfFavourites', new List.empty());
+
         await FirebaseFirestore.instance
             .collection('users')
             .doc(authresult.user!.uid)
@@ -121,9 +116,11 @@ class _LogInScreenState extends State<LogInScreen> {
       setState(() {
         _isLoading = false;
       });
-    } on PlatformException catch (error) {
+      Navigator.of(context).pushReplacementNamed('/');
+    } on FirebaseAuthException catch (error) {
       var errormsg = 'Authentication Failed!';
       if (error.message != null) {
+        print(error.message);
         errormsg = error.message!;
       }
       setState(() {
@@ -137,10 +134,6 @@ class _LogInScreenState extends State<LogInScreen> {
       });
       _showErrorDialog(errormsg);
     }
-    // print(FirebaseAuth.instance.currentUser!.uid);
-    Navigator.of(context).pushReplacementNamed('/');
-    // submitAndAddUser(_authData['Email'].trim(), _authData['Password'].trim(),
-    //     '', authType == AuthType.Login, context);
   }
 
   bool _isFirstTimeLoaded = true;
@@ -176,8 +169,8 @@ class _LogInScreenState extends State<LogInScreen> {
                   ),
                   Row(
                     children: [
-                      Image.network(
-                        'https://img.freepik.com/free-vector/burundi-deep-purple-travel-destination-vector-illustration_268722-264.jpg?w=900',
+                      Image.asset(
+                        'Assets/images/authPhoto.jpg',
                         height: islandscape ? size.height : size.height * 0.28,
                         width: islandscape ? size.width * 0.3 : size.width,
                         fit: BoxFit.cover,
@@ -191,6 +184,34 @@ class _LogInScreenState extends State<LogInScreen> {
               ),
             ),
           ),
+          Positioned(
+              top: 40,
+              left: 15,
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                      child: Container(
+                        color: Colors.black12,
+                        height: 40,
+                        width: 40,
+                      )))),
+          Positioned(
+              top: 40,
+              left: 19,
+              child: Container(
+                height: 40,
+                width: 40,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(AuthScreen.Routename);
+                  },
+                ),
+              )),
           Positioned(
             top: islandscape ? 0 : size.height * 0.27,
             left: islandscape ? size.width * 0.25 : 0,
@@ -428,7 +449,10 @@ class _LogInScreenState extends State<LogInScreen> {
                             ),
                             if (authType == AuthType.Login)
                               FlatButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.of(context).pushNamed(
+                                        forgotPasswordScreen.Routename);
+                                  },
                                   child: Text(
                                     'Forgot password?',
                                     style: TextStyle(color: Colors.deepPurple),

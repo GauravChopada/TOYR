@@ -8,9 +8,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_routes/google_maps_routes.dart';
 import 'package:scroll_snap_list/scroll_snap_list.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../Models/directions_model.dart';
-import '../Models/directions_repository.dart';
 import '../Models/place.dart';
 
 class viewOnMap extends StatefulWidget {
